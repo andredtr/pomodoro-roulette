@@ -35,6 +35,10 @@ function App() {
     setSelectedTask(task);
   };
 
+  const handleTaskCompleted = (taskId) => {
+    deleteTask(taskId);
+  };
+
   return (
     <>
       <main className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -63,6 +67,7 @@ function App() {
              <RouletteWheel 
                tasks={tasks}
                onTaskSelected={handleTaskSelected}
+               onTaskCompleted={handleTaskCompleted}
              />
            </div>
          </div>

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 
-function RouletteWheel({ tasks, onTaskSelected }) {
+function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted }) {
   const [isSpinning, setIsSpinning] = useState(false)
   const [selectedTask, setSelectedTask] = useState(null)
   const [timeLeft, setTimeLeft] = useState(0)
@@ -22,6 +22,24 @@ function RouletteWheel({ tasks, onTaskSelected }) {
     setTimeLeft(25 * 60)
   }
 
+  const completeTask = () => {
+    if (!selectedTask) return
+    
+    const confirmed = window.confirm(`Are you sure you want to complete the task: "${selectedTask.text}"?\n\nThis will remove the task from your list and reset the timer.`)
+    
+    if (confirmed) {
+      // Reset timer and clear selected task
+      setTimeLeft(0)
+      setSelectedTask(null)
+      clearTimeout(timerRef.current)
+      
+      // Call parent callback to remove the task
+      if (onTaskCompleted) {
+        onTaskCompleted(selectedTask.id)
+      }
+    }
+  }
+
   useEffect(() => {
     if (timeLeft > 0) {
       document.title = `${formatTime(timeLeft)} Pomodoro Roulette`
@@ -40,9 +58,9 @@ function RouletteWheel({ tasks, onTaskSelected }) {
     setSelectedTask(null)
     setTimeLeft(0)
 
-    // Random rotation between 1080 and 1800 degrees (3-5 full rotations)
-    const minRotation = 1080
-    const maxRotation = 1800
+    // Random rotation between 2160 and 3600 degrees (6-10 full rotations)
+    const minRotation = 2160
+    const maxRotation = 3600
     const rotation = Math.random() * (maxRotation - minRotation) + minRotation
 
     // Calculate which task will be selected
@@ -60,7 +78,7 @@ function RouletteWheel({ tasks, onTaskSelected }) {
       const selected = tasks[selectedIndex]
       setSelectedTask(selected)
       onTaskSelected(selected)
-    }, 3000)
+    }, 4000)
   }
 
   if (tasks.length < 2) {
@@ -94,7 +112,7 @@ function RouletteWheel({ tasks, onTaskSelected }) {
           {/* Wheel */}
           <div 
             ref={wheelRef}
-            className="w-64 h-64 rounded-full border-4 border-gray-300 relative overflow-hidden transition-transform duration-3000 ease-out"
+            className="w-64 h-64 rounded-full border-4 border-gray-300 relative overflow-hidden transition-transform duration-4000 ease-out"
             style={{
               background: `conic-gradient(${tasks.map((task, index) => {
                 const startAngle = (index * 360) / tasks.length
@@ -168,7 +186,17 @@ function RouletteWheel({ tasks, onTaskSelected }) {
               </button>
             </>
           ) : (
-            <p className="text-2xl font-bold text-green-700 mt-2">{formatTime(timeLeft)}</p>
+            <>
+              <p className="text-2xl font-bold text-green-700 mt-2">{formatTime(timeLeft)}</p>
+              <div className="mt-4 space-y-2">
+                <button
+                  onClick={completeTask}
+                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                >
+                  ✅ Complete Task
+                </button>
+              </div>
+            </>
           )}
         </div>
       )}
