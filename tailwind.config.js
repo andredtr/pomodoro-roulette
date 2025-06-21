@@ -7,9 +7,9 @@ export default {
         sans: ['Inter', 'ui-sans-serif', 'system-ui'],
       },
       colors: {
-        bgNav: '#0E1117',
-        bgCard: '#161B22',
-        bgSecondary: '#2D3748',
+        nav: '#0E1117',
+        card: '#161B22',
+        secondary: '#2D3748',
         accentPrimary: '#FF5B57',
         accentSuccess: '#22C55E',
         accentInfo: '#38BDF8',

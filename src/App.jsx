@@ -42,7 +42,7 @@ function App() {
 
   return (
     <>
-      <main className="min-h-screen bg-bgSecondary">
+      <main className="min-h-screen bg-secondary">
         <div className="container mx-auto p-4 ">
           <div className="text-center mb-8">
             <h1 className="text-[48px] font-semibold text-white mb-2 flex items-center justify-center gap-2">

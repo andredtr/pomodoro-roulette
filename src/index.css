@@ -1,8 +1,7 @@
-@import "tailwindcss";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 body {
-  @apply font-sans bg-bgNav text-white;
+  @apply font-sans bg-nav text-white;
 }
