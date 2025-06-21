@@ -1,20 +1,44 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 
 function RouletteWheel({ tasks, onTaskSelected }) {
   const [isSpinning, setIsSpinning] = useState(false)
   const [selectedTask, setSelectedTask] = useState(null)
+  const [timeLeft, setTimeLeft] = useState(0)
   const wheelRef = useRef(null)
+  const timerRef = useRef(null)
 
   const colors = [
     '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
     '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9'
   ]
 
+  const formatTime = (seconds) => {
+    const m = String(Math.floor(seconds / 60)).padStart(2, '0')
+    const s = String(seconds % 60).padStart(2, '0')
+    return `${m}:${s}`
+  }
+
+  const startTimer = () => {
+    setTimeLeft(25 * 60)
+  }
+
+  useEffect(() => {
+    if (timeLeft > 0) {
+      document.title = `${formatTime(timeLeft)} Pomodoro Roulette`
+      timerRef.current = setTimeout(() => setTimeLeft(timeLeft - 1), 1000)
+    } else {
+      document.title = 'Pomodoro Roulette'
+      clearTimeout(timerRef.current)
+    }
+    return () => clearTimeout(timerRef.current)
+  }, [timeLeft])
+
   const spin = () => {
     if (tasks.length === 0 || isSpinning) return
 
     setIsSpinning(true)
     setSelectedTask(null)
+    setTimeLeft(0)
 
     // Random rotation between 1080 and 1800 degrees (3-5 full rotations)
     const minRotation = 1080
@@ -133,11 +157,23 @@ function RouletteWheel({ tasks, onTaskSelected }) {
         <div className="text-center p-4 bg-green-50 rounded-lg border-2 border-green-200">
           <h3 className="text-lg font-bold text-green-800 mb-2">🎉 Selected Task:</h3>
           <p className="text-xl font-semibold text-green-700">{selectedTask.text}</p>
-          <p className="text-sm text-green-600 mt-2">Time for a 25-minute Pomodoro session!</p>
+          {timeLeft === 0 ? (
+            <>
+              <p className="text-sm text-green-600 mt-2">Time for a 25-minute Pomodoro session!</p>
+              <button
+                onClick={startTimer}
+                className="mt-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+              >
+                Start Timer
+              </button>
+            </>
+          ) : (
+            <p className="text-2xl font-bold text-green-700 mt-2">{formatTime(timeLeft)}</p>
+          )}
         </div>
       )}
     </div>
   )
 }
 
-export default RouletteWheel 
+export default RouletteWheel
