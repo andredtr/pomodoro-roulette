@@ -2,23 +2,41 @@ import { useState, useEffect } from "react";
 import Navbar from "./layout/Navbar";
 import TaskManager from "./components/TaskManager";
 import RouletteWheel from "./components/RouletteWheel";
+import Analytics from "./components/Analytics";
 
 function App() {
   const [tasks, setTasks] = useState(() => {
     const stored = localStorage.getItem('tasks');
-    return stored ? JSON.parse(stored) : [];
+    if (stored) {
+      return JSON.parse(stored).map((t) => ({
+        pomodoros: 0,
+        ...t,
+      }));
+    }
+    return [];
   });
   const [selectedTask, setSelectedTask] = useState(null);
+  const [analytics, setAnalytics] = useState(() => {
+    const stored = localStorage.getItem('analytics');
+    return stored
+      ? JSON.parse(stored)
+      : { tasksCompleted: 0, history: [] };
+  });
 
   useEffect(() => {
     localStorage.setItem('tasks', JSON.stringify(tasks));
   }, [tasks]);
+
+  useEffect(() => {
+    localStorage.setItem('analytics', JSON.stringify(analytics));
+  }, [analytics]);
 
   const addTask = (taskText) => {
     const newTask = {
       id: Date.now(),
       text: taskText,
       createdAt: new Date(),
+      pomodoros: 0,
     };
     setTasks((prev) => [...prev, newTask]);
   };
@@ -35,7 +53,22 @@ function App() {
     setSelectedTask(task);
   };
 
+  const handlePomodoroComplete = (taskId) => {
+    setTasks((prev) =>
+      prev.map((t) =>
+        t.id === taskId ? { ...t, pomodoros: (t.pomodoros || 0) + 1 } : t
+      )
+    );
+  };
+
   const handleTaskCompleted = (taskId) => {
+    const task = tasks.find((t) => t.id === taskId);
+    if (task) {
+      setAnalytics((prev) => ({
+        tasksCompleted: prev.tasksCompleted + 1,
+        history: [...prev.history, { text: task.text, pomodoros: task.pomodoros }],
+      }));
+    }
     deleteTask(taskId);
   };
 
@@ -63,17 +96,20 @@ function App() {
            </div>
            
            {/* Right Side - Roulette Wheel */}
-           <div className="order-1 lg:order-2 lg:col-span-8">
-             <RouletteWheel 
-               tasks={tasks}
-               onTaskSelected={handleTaskSelected}
-               onTaskCompleted={handleTaskCompleted}
-             />
-           </div>
-         </div>
+          <div className="order-1 lg:order-2 lg:col-span-8">
+            <RouletteWheel
+              tasks={tasks}
+              onTaskSelected={handleTaskSelected}
+              onTaskCompleted={handleTaskCompleted}
+              onPomodoroComplete={handlePomodoroComplete}
+            />
+          </div>
         </div>
-      </main>
-    </>
+
+        <Analytics analytics={analytics} />
+      </div>
+    </main>
+  </>
   );
 }
 

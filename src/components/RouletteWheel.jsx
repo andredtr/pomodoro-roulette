@@ -1,12 +1,13 @@
 import { useState, useRef, useEffect } from 'react'
 
-function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted }) {
+function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroComplete }) {
   const [isSpinning, setIsSpinning] = useState(false)
   const [selectedTask, setSelectedTask] = useState(null)
   const [timeLeft, setTimeLeft] = useState(0)
   const wheelRef = useRef(null)
   const timerRef = useRef(null)
   const spinSoundRef = useRef(null)
+  const prevTimeLeftRef = useRef(timeLeft)
 
   const colors = [
     '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
@@ -131,6 +132,7 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted }) {
   }
 
   const startTimer = () => {
+    prevTimeLeftRef.current = 25 * 60
     setTimeLeft(25 * 60)
   }
 
@@ -153,20 +155,25 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted }) {
   }
 
   useEffect(() => {
-    // Clear any existing timeout first
     clearTimeout(timerRef.current)
-    
+
     if (timeLeft > 0 && selectedTask) {
       document.title = `${formatTime(timeLeft)} Pomodoro Roulette`
       timerRef.current = setTimeout(() => setTimeLeft(prev => prev - 1), 1000)
     } else if (timeLeft === 0 && selectedTask) {
-      // Timer just completed - play sound only once
       document.title = 'Pomodoro Roulette - Timer Complete!'
-      playCompletionSound()
+      if (prevTimeLeftRef.current > 0) {
+        playCompletionSound()
+        if (onPomodoroComplete) {
+          onPomodoroComplete(selectedTask.id)
+        }
+      }
     } else {
       document.title = 'Pomodoro Roulette'
     }
-    
+
+    prevTimeLeftRef.current = timeLeft
+
     return () => clearTimeout(timerRef.current)
   }, [timeLeft, selectedTask])
 
