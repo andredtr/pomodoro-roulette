@@ -6,6 +6,7 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted }) {
   const [timeLeft, setTimeLeft] = useState(0)
   const wheelRef = useRef(null)
   const timerRef = useRef(null)
+  const spinSoundRef = useRef(null)
 
   const colors = [
     '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
@@ -18,8 +19,119 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted }) {
     return `${m}:${s}`
   }
 
+  const playSpinningSound = () => {
+    try {
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)()
+      
+      // Create a repeating tick sound that gets slower over time
+      const playTick = (startTime) => {
+        const oscillator = audioContext.createOscillator()
+        const gainNode = audioContext.createGain()
+        
+        oscillator.connect(gainNode)
+        gainNode.connect(audioContext.destination)
+        
+        // Higher frequency for a clicking sound
+        oscillator.frequency.setValueAtTime(800, startTime)
+        oscillator.type = 'square'
+        
+        // Short, sharp sound
+        gainNode.gain.setValueAtTime(0, startTime)
+        gainNode.gain.linearRampToValueAtTime(0.15, startTime + 0.005)
+        gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + 0.05)
+        
+        oscillator.start(startTime)
+        oscillator.stop(startTime + 0.05)
+      }
+      
+      // Create a series of ticks that slow down over 4 seconds
+      const duration = 4000 // 4 seconds
+      const startTime = audioContext.currentTime
+      let currentTime = 0
+      let tickInterval = 50 // Start with 50ms between ticks
+      
+      const scheduleNextTick = () => {
+        if (currentTime < duration) {
+          playTick(startTime + currentTime / 1000)
+          currentTime += tickInterval
+          // Gradually increase interval to slow down the ticking
+          tickInterval = Math.min(tickInterval * 1.02, 200)
+          setTimeout(scheduleNextTick, 1)
+        }
+      }
+      
+      scheduleNextTick()
+      
+      // Store reference to stop if needed
+      spinSoundRef.current = { audioContext, duration }
+      
+    } catch (error) {
+      console.log('Spinning sound not supported:', error)
+    }
+  }
+
+  const stopSpinningSound = () => {
+    if (spinSoundRef.current?.audioContext) {
+      try {
+        spinSoundRef.current.audioContext.close()
+      } catch (error) {
+        console.log('Error stopping spinning sound:', error)
+      }
+      spinSoundRef.current = null
+    }
+  }
+
+  const playCompletionSound = () => {
+    try {
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)()
+      
+      // Create a triumphant "tadah" fanfare sound
+      const playNote = (frequency, startTime, duration, volume = 0.2) => {
+        const oscillator = audioContext.createOscillator()
+        const gainNode = audioContext.createGain()
+        
+        oscillator.connect(gainNode)
+        gainNode.connect(audioContext.destination)
+        
+        oscillator.frequency.setValueAtTime(frequency, startTime)
+        oscillator.type = 'sawtooth' // Richer, more fanfare-like sound
+        
+        gainNode.gain.setValueAtTime(0, startTime)
+        gainNode.gain.linearRampToValueAtTime(volume, startTime + 0.02)
+        gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + duration)
+        
+        oscillator.start(startTime)
+        oscillator.stop(startTime + duration)
+      }
+      
+      // Create chord progression for "tadah" effect
+      const now = audioContext.currentTime
+      
+      // Opening chord (C major) - quick stab
+      playNote(261.63, now, 0.15, 0.15) // C4
+      playNote(329.63, now, 0.15, 0.12) // E4
+      playNote(392.00, now, 0.15, 0.12) // G4
+      
+      // Rising glissando effect
+      playNote(523.25, now + 0.2, 0.3, 0.2) // C5
+      playNote(587.33, now + 0.35, 0.3, 0.18) // D5
+      playNote(659.25, now + 0.5, 0.4, 0.22) // E5
+      
+      // Final triumphant chord (C major octave higher) - "TADAH!"
+      playNote(523.25, now + 0.8, 0.8, 0.25) // C5
+      playNote(659.25, now + 0.8, 0.8, 0.2)  // E5
+      playNote(783.99, now + 0.8, 0.8, 0.2)  // G5
+      playNote(1046.5, now + 0.8, 0.8, 0.15) // C6
+      
+    } catch (error) {
+      console.log('Audio not supported:', error)
+      // Fallback: try to use system bell
+      console.log('\u0007') // Bell character
+    }
+  }
+
   const startTimer = () => {
-    setTimeLeft(25 * 60)
+    setTimeLeft(10)
   }
 
   const completeTask = () => {
@@ -41,22 +153,36 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted }) {
   }
 
   useEffect(() => {
-    if (timeLeft > 0) {
+    // Clear any existing timeout first
+    clearTimeout(timerRef.current)
+    
+    if (timeLeft > 0 && selectedTask) {
       document.title = `${formatTime(timeLeft)} Pomodoro Roulette`
-      timerRef.current = setTimeout(() => setTimeLeft(timeLeft - 1), 1000)
+      timerRef.current = setTimeout(() => setTimeLeft(prev => prev - 1), 1000)
+    } else if (timeLeft === 0 && selectedTask) {
+      // Timer just completed - play sound only once
+      document.title = 'Pomodoro Roulette - Timer Complete!'
+      playCompletionSound()
     } else {
       document.title = 'Pomodoro Roulette'
-      clearTimeout(timerRef.current)
     }
+    
     return () => clearTimeout(timerRef.current)
-  }, [timeLeft])
+  }, [timeLeft, selectedTask])
 
   const spin = () => {
     if (tasks.length === 0 || isSpinning) return
 
+    // Clear any existing timers and reset all state
+    clearTimeout(timerRef.current)
+    stopSpinningSound() // Stop any existing spinning sound
     setIsSpinning(true)
     setSelectedTask(null)
     setTimeLeft(0)
+    document.title = 'Pomodoro Roulette'
+
+    // Start spinning sound
+    playSpinningSound()
 
     // Random rotation between 2160 and 3600 degrees (6-10 full rotations)
     const minRotation = 2160
@@ -75,6 +201,7 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted }) {
     // After animation completes
     setTimeout(() => {
       setIsSpinning(false)
+      stopSpinningSound() // Stop spinning sound when wheel stops
       const selected = tasks[selectedIndex]
       setSelectedTask(selected)
       onTaskSelected(selected)
