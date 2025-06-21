@@ -6,6 +6,7 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted }) {
   const [isSpinning, setIsSpinning] = useState(false)
   const [selectedTask, setSelectedTask] = useState(null)
   const [timeLeft, setTimeLeft] = useState(0)
+  const [timerStarted, setTimerStarted] = useState(false)
   const wheelRef = useRef(null)
   const timerRef = useRef(null)
   const spinSoundRef = useRef(null)
@@ -135,6 +136,7 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted }) {
 
   const startTimer = () => {
     setTimeLeft(25 * 60)
+    setTimerStarted(true)
   }
 
   const completeTask = () => {
@@ -146,6 +148,7 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted }) {
       // Reset timer and clear selected task
       setTimeLeft(0)
       setSelectedTask(null)
+      setTimerStarted(false)
       clearTimeout(timerRef.current)
       
       // Call parent callback to remove the task
@@ -182,6 +185,7 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted }) {
     setIsSpinning(true)
     setSelectedTask(null)
     setTimeLeft(0)
+    setTimerStarted(false)
     document.title = 'Pomodoro Roulette'
 
     // Start spinning sound
@@ -329,18 +333,28 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted }) {
           <p className="text-xl font-semibold mb-1">{selectedTask.text}</p>
           {timeLeft === 0 ? (
             <>
-              <p className="text-xs text-white/60 mt-1">25-min session</p>
-              <button
-                onClick={startTimer}
-                className="mt-4 px-6 h-12 rounded-pill bg-gradient-to-r from-accent-info to-blue-600 text-white hover:brightness-110"
-              >
-                Start Timer
-              </button>
+              <p className="text-sm text-green-300 mt-2">Time for a 25-minute Pomodoro session!</p>
+              <div className="mt-4 flex justify-center space-x-4">
+                <button
+                  onClick={startTimer}
+                  className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                >
+                  Start Timer
+                </button>
+                {timerStarted && (
+                  <button
+                    onClick={completeTask}
+                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                  >
+                    ✅ Complete Task
+                  </button>
+                )}
+              </div>
             </>
           ) : (
             <>
-              <p className="text-2xl font-bold text-white mt-2">{formatTime(timeLeft)}</p>
-              <div className="mt-4 space-y-2">
+              <p className="text-2xl font-bold text-green-300 mt-2">{formatTime(timeLeft)}</p>
+              <div className="mt-4 flex justify-center">
                 <button
                   onClick={completeTask}
                   className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"

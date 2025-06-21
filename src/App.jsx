@@ -42,10 +42,10 @@ function App() {
   return (
     <>
       <main className="min-h-screen bg-bg-outer">
-        <div className="max-w-5xl mx-auto p-4 ">
+        <div className="max-w-7xl mx-auto p-4 ">
           <header className="text-center mb-8">
             <div className="flex justify-center items-center gap-2 mb-2">
-              <TomatoIcon className="w-8 h-8" />
+              <TomatoIcon className="w-12 h-12" />
               <h1 className="text-5xl font-semibold tracking-tight">Pomodoro Roulette</h1>
             </div>
             <p className="text-sm max-w-xl mx-auto text-white/60">
