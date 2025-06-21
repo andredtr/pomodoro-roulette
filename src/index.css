@@ -1,9 +1,8 @@
 @import "tailwindcss";
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap");
 
 @layer base {
   html {
-    @apply font-inter bg-bgOuter text-textPrimary;
+    @apply font-sans bg-bgOuter text-textPrimary;
   }
   h1 {
     @apply text-4xl font-semibold;
