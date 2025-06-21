@@ -7,6 +7,7 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted }) {
   const wheelRef = useRef(null)
   const timerRef = useRef(null)
   const spinSoundRef = useRef(null)
+  const rotationRef = useRef(0)
 
   const colors = [
     '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
@@ -187,12 +188,16 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted }) {
     // Random rotation between 2160 and 3600 degrees (6-10 full rotations)
     const minRotation = 2160
     const maxRotation = 3600
-    const rotation = Math.random() * (maxRotation - minRotation) + minRotation
+    const additionalRotation = Math.random() * (maxRotation - minRotation) + minRotation
+    const rotation = rotationRef.current + additionalRotation
 
     // Calculate which task will be selected
     const degreesPerTask = 360 / tasks.length
     const normalizedRotation = rotation % 360
     const selectedIndex = Math.floor((360 - normalizedRotation) / degreesPerTask) % tasks.length
+
+    // Update stored rotation so subsequent spins start from current position
+    rotationRef.current = rotation
     
     if (wheelRef.current) {
       wheelRef.current.style.transform = `rotate(${rotation}deg)`
