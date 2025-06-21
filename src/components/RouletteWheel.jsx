@@ -228,7 +228,7 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted }) {
 
   if (tasks.length < 2) {
     return (
-      <div className="bg-bgCard rounded-md shadow-lg p-12 flex flex-col items-center justify-center h-96">
+      <div className="bg-bg-card rounded-md shadow-lg p-12 flex flex-col items-center justify-center h-96">
         <div className="text-6xl mb-4">🎯</div>
         <h2 className="mb-2 text-center">Task Wheel</h2>
         {tasks.length === 0 ? (
@@ -243,14 +243,14 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted }) {
   }
 
   return (
-    <div className="bg-bgCard rounded-md shadow-lg px-6 py-12">
+    <div className="bg-bg-card rounded-md shadow-lg px-6 py-12">
       <h2 className="mb-6 text-center">Task Wheel</h2>
       
       {/* Wheel Container */}
       <div className="relative flex justify-center mb-6">
         <div className="relative">
           {/* Pointer */}
-          <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-10 text-accentPrimary">
+          <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-10 text-accent-primary">
             <ChevronIcon className="w-6 h-6" />
           </div>
           
@@ -308,8 +308,8 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted }) {
           className={`px-8 h-12 rounded-pill inline-flex items-center justify-center gap-2 font-medium transition-all ${
             isSpinning
               ? 'bg-gray-600 cursor-not-allowed'
-              : 'bg-gradient-to-r from-accentSuccess to-green-700 hover:brightness-110 active:brightness-90'
-          } text-white focus:outline-none focus:ring-2 focus:ring-accentSuccess`}
+              : 'bg-gradient-to-r from-accent-success to-green-700 hover:brightness-110 active:brightness-90'
+          } text-white focus:outline-none focus:ring-2 focus:ring-accent-success`}
         >
           {isSpinning ? (
             'Spinning...'
@@ -324,7 +324,7 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted }) {
 
       {/* Selected Task Display */}
       {selectedTask && (
-        <div className="text-center p-4 mx-auto mt-6 w-4/5 rounded-md backdrop-blur-md bg-[rgba(34,44,60,0.45)] border-2 border-accentSuccess">
+        <div className="text-center p-4 mx-auto mt-6 w-4/5 rounded-md backdrop-blur-md bg-[rgba(34,44,60,0.45)] border-2 border-accent-success">
           <h3 className="text-sm text-white/60 mb-1">Selected task</h3>
           <p className="text-xl font-semibold mb-1">{selectedTask.text}</p>
           {timeLeft === 0 ? (
@@ -332,7 +332,7 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted }) {
               <p className="text-xs text-white/60 mt-1">25-min session</p>
               <button
                 onClick={startTimer}
-                className="mt-4 px-6 h-12 rounded-pill bg-gradient-to-r from-accentInfo to-blue-600 text-white hover:brightness-110"
+                className="mt-4 px-6 h-12 rounded-pill bg-gradient-to-r from-accent-info to-blue-600 text-white hover:brightness-110"
               >
                 Start Timer
               </button>

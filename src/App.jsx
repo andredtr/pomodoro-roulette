@@ -41,7 +41,7 @@ function App() {
 
   return (
     <>
-      <main className="min-h-screen bg-bgOuter">
+      <main className="min-h-screen bg-bg-outer">
         <div className="max-w-5xl mx-auto p-4 ">
           <header className="text-center mb-8">
             <div className="flex justify-center items-center gap-2 mb-2">
@@ -54,9 +54,9 @@ function App() {
             <div className="mt-8 h-px bg-white/20"></div>
           </header>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
            {/* Left Side - Task Manager */}
-           <div className="order-2 lg:order-1 lg:col-span-3">
+           <div className="order-2 lg:order-1 lg:col-span-4">
              <TaskManager
                tasks={tasks}
                onAddTask={addTask}
@@ -65,7 +65,7 @@ function App() {
            </div>
 
            {/* Right Side - Roulette Wheel */}
-           <div className="order-1 lg:order-2 lg:col-span-9">
+           <div className="order-1 lg:order-2 lg:col-span-8">
              <RouletteWheel
                tasks={tasks}
                onTaskSelected={handleTaskSelected}

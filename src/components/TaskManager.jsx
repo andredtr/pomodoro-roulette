@@ -13,22 +13,22 @@ function TaskManager({ tasks, onAddTask, onDeleteTask }) {
   }
 
   return (
-    <div className="bg-bgCard rounded-md shadow-lg p-6">
+    <div className="bg-bg-card rounded-md shadow-lg p-6 relative z-10">
       <h2 className="mb-4">Task Manager</h2>
       
       {/* Add Task Form */}
       <form onSubmit={handleSubmit} className="mb-6">
-        <div className="flex gap-2">
+        <div className="flex gap-3">
           <input
             type="text"
             value={newTask}
             onChange={(e) => setNewTask(e.target.value)}
             placeholder="Enter a new task..."
-            className="flex-1 px-4 py-2 bg-bgSecondary placeholder-white/40 text-textPrimary rounded-pill focus:outline-none focus:ring-2 focus:ring-accentInfo"
+            className="flex-1 min-w-0 px-4 py-2 bg-bg-secondary placeholder-white/40 text-text-primary rounded-pill focus:outline-none focus:ring-2 focus:ring-accent-info"
           />
           <button
             type="submit"
-            className="px-6 py-2 bg-accentPrimary text-white rounded-pill hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-accentPrimary transition-colors"
+            className="px-6 py-2 bg-accent-primary text-white rounded-pill hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-accent-primary transition-colors whitespace-nowrap"
           >
             Add
           </button>
@@ -45,13 +45,13 @@ function TaskManager({ tasks, onAddTask, onDeleteTask }) {
             {tasks.map((task) => (
               <li
                 key={task.id}
-                className="flex items-center justify-between p-3 bg-bgSecondary rounded-md"
+                className="flex items-center justify-between p-3 bg-bg-secondary rounded-md"
               >
-                <span className="text-textPrimary truncate">{task.text}</span>
+                <span className="text-text-primary truncate">{task.text}</span>
                 <button
                   aria-label={`Delete task '${task.text}'`}
                   onClick={() => onDeleteTask(task.id)}
-                  className="p-1 text-textPrimary/70 hover:text-accentPrimary"
+                  className="p-1 text-text-primary/70 hover:text-accent-primary"
                 >
                   <TrashIcon className="w-5 h-5" />
                 </button>

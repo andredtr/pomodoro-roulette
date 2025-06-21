@@ -8,13 +8,13 @@ export default function TomatoIcon({className}) {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <circle cx="12" cy="13" r="7" className="fill-accentPrimary" />
+      <circle cx="12" cy="13" r="7" className="fill-accent-primary" />
       <path
         d="M12 4l2-2m-2 2L10 2m2 2v2"
         stroke="currentColor"
         strokeWidth="2"
         strokeLinecap="round"
-        className="stroke-accentSuccess"
+        className="stroke-accent-success"
       />
     </svg>
   )
