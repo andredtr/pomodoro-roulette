@@ -41,13 +41,13 @@ function App() {
 
   return (
     <>
-      <main className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      <main className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800">
         <div className="container mx-auto p-4 ">
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-gray-800 mb-2">
+            <h1 className="text-4xl font-bold text-gray-100 mb-2">
               🍅 Pomodoro Roulette
             </h1>
-            <p className="text-gray-600">
+            <p className="text-gray-300">
               Add your tasks and let the wheel decide what to work on next!
             </p>
           </div>
