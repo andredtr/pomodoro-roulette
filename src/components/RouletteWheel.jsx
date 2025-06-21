@@ -84,22 +84,40 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted }) {
   const playCompletionSound = () => {
     try {
       const audioContext = new (window.AudioContext || window.webkitAudioContext)()
-      
-      // Create a triumphant "tadah" fanfare sound
-      const playNote = (frequency, startTime, duration, volume = 0.2) => {
+
+      // Utility to create a distortion curve for a heavier sound
+      const createDistortionCurve = (amount) => {
+        const k = typeof amount === 'number' ? amount : 50
+        const nSamples = 44100
+        const curve = new Float32Array(nSamples)
+        const deg = Math.PI / 180
+        for (let i = 0; i < nSamples; ++i) {
+          const x = (i * 2) / nSamples - 1
+          curve[i] = ((3 + k) * x * 20 * deg) / (Math.PI + k * Math.abs(x))
+        }
+        return curve
+      }
+
+      // Create a triumphant "tadah" fanfare sound with some distortion
+      const playNote = (frequency, startTime, duration, volume = 0.3) => {
         const oscillator = audioContext.createOscillator()
+        const distortion = audioContext.createWaveShaper()
         const gainNode = audioContext.createGain()
-        
-        oscillator.connect(gainNode)
+
+        distortion.curve = createDistortionCurve(400)
+        distortion.oversample = '4x'
+
+        oscillator.connect(distortion)
+        distortion.connect(gainNode)
         gainNode.connect(audioContext.destination)
-        
+
         oscillator.frequency.setValueAtTime(frequency, startTime)
         oscillator.type = 'sawtooth' // Richer, more fanfare-like sound
-        
+
         gainNode.gain.setValueAtTime(0, startTime)
         gainNode.gain.linearRampToValueAtTime(volume, startTime + 0.02)
         gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + duration)
-        
+
         oscillator.start(startTime)
         oscillator.stop(startTime + duration)
       }
@@ -108,20 +126,20 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted }) {
       const now = audioContext.currentTime
       
       // Opening chord (C major) - quick stab
-      playNote(261.63, now, 0.15, 0.15) // C4
-      playNote(329.63, now, 0.15, 0.12) // E4
-      playNote(392.00, now, 0.15, 0.12) // G4
+      playNote(261.63, now, 0.15, 0.2) // C4
+      playNote(329.63, now, 0.15, 0.18) // E4
+      playNote(392.00, now, 0.15, 0.18) // G4
       
       // Rising glissando effect
-      playNote(523.25, now + 0.2, 0.3, 0.2) // C5
-      playNote(587.33, now + 0.35, 0.3, 0.18) // D5
-      playNote(659.25, now + 0.5, 0.4, 0.22) // E5
+      playNote(523.25, now + 0.2, 0.3, 0.25) // C5
+      playNote(587.33, now + 0.35, 0.3, 0.23) // D5
+      playNote(659.25, now + 0.5, 0.4, 0.27) // E5
       
       // Final triumphant chord (C major octave higher) - "TADAH!"
-      playNote(523.25, now + 0.8, 0.8, 0.25) // C5
-      playNote(659.25, now + 0.8, 0.8, 0.2)  // E5
-      playNote(783.99, now + 0.8, 0.8, 0.2)  // G5
-      playNote(1046.5, now + 0.8, 0.8, 0.15) // C6
+      playNote(523.25, now + 0.8, 0.8, 0.35) // C5
+      playNote(659.25, now + 0.8, 0.8, 0.3)  // E5
+      playNote(783.99, now + 0.8, 0.8, 0.3)  // G5
+      playNote(1046.5, now + 0.8, 0.8, 0.25) // C6
       
     } catch (error) {
       console.log('Audio not supported:', error)
