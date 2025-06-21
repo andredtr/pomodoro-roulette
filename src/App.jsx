@@ -1,11 +1,18 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "./layout/Navbar";
 import TaskManager from "./components/TaskManager";
 import RouletteWheel from "./components/RouletteWheel";
 
 function App() {
-  const [tasks, setTasks] = useState([]);
+  const [tasks, setTasks] = useState(() => {
+    const stored = localStorage.getItem('tasks');
+    return stored ? JSON.parse(stored) : [];
+  });
   const [selectedTask, setSelectedTask] = useState(null);
+
+  useEffect(() => {
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+  }, [tasks]);
 
   const addTask = (taskText) => {
     const newTask = {
