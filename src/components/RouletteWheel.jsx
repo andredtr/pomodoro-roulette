@@ -189,7 +189,10 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted }) {
     const minRotation = 2160
     const maxRotation = 3600
     const additionalRotation = Math.random() * (maxRotation - minRotation) + minRotation
-    const rotation = rotationRef.current + additionalRotation
+
+    // Normalize current rotation to avoid huge accumulated values
+    const currentRotation = rotationRef.current % 360
+    const rotation = currentRotation + additionalRotation
 
     // Calculate which task will be selected
     const degreesPerTask = 360 / tasks.length
@@ -198,8 +201,16 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted }) {
 
     // Update stored rotation so subsequent spins start from current position
     rotationRef.current = rotation
-    
+
     if (wheelRef.current) {
+      // Reset to normalized rotation instantly
+      wheelRef.current.style.transition = 'none'
+      wheelRef.current.style.transform = `rotate(${currentRotation}deg)`
+      // Force reflow to apply the immediate transform
+      // eslint-disable-next-line no-unused-expressions
+      wheelRef.current.getBoundingClientRect()
+      // Apply the spin with smooth transition
+      wheelRef.current.style.transition = 'transform 4s ease-out'
       wheelRef.current.style.transform = `rotate(${rotation}deg)`
     }
 
@@ -244,7 +255,7 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted }) {
           {/* Wheel */}
           <div 
             ref={wheelRef}
-            className="w-64 h-64 rounded-full border-4 border-gray-600 relative overflow-hidden transition-transform duration-4000 ease-out"
+            className="w-64 h-64 rounded-full border-4 border-gray-600 relative overflow-hidden transition-transform duration-[4000ms] ease-out"
             style={{
               background: `conic-gradient(${tasks.map((task, index) => {
                 const startAngle = (index * 360) / tasks.length
