@@ -215,13 +215,13 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted }) {
 
   if (tasks.length < 2) {
     return (
-      <div className="bg-white rounded-lg shadow-lg p-6 flex flex-col items-center justify-center h-96">
+      <div className="bg-gray-800 rounded-lg shadow-lg p-6 flex flex-col items-center justify-center h-96">
         <div className="text-6xl mb-4">🎯</div>
-        <h2 className="text-xl font-bold mb-2 text-gray-800">Pomodoro Roulette</h2>
+        <h2 className="text-xl font-bold mb-2 text-gray-100">Pomodoro Roulette</h2>
         {tasks.length === 0 ? (
-          <p className="text-gray-500 text-center">Add some tasks to start spinning the wheel!</p>
+          <p className="text-gray-400 text-center">Add some tasks to start spinning the wheel!</p>
         ) : (
-          <p className="text-gray-500 text-center">
+          <p className="text-gray-400 text-center">
             You have {tasks.length} task. Add at least one more task to spin the wheel!
           </p>
         )}
@@ -230,8 +230,8 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted }) {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6">
-      <h2 className="text-xl font-bold mb-4 text-gray-800 text-center">Pomodoro Roulette</h2>
+    <div className="bg-gray-800 rounded-lg shadow-lg p-6">
+      <h2 className="text-xl font-bold mb-4 text-gray-100 text-center">Pomodoro Roulette</h2>
       
       {/* Wheel Container */}
       <div className="relative flex justify-center mb-6">
@@ -244,7 +244,7 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted }) {
           {/* Wheel */}
           <div 
             ref={wheelRef}
-            className="w-64 h-64 rounded-full border-4 border-gray-300 relative overflow-hidden transition-transform duration-4000 ease-out"
+            className="w-64 h-64 rounded-full border-4 border-gray-600 relative overflow-hidden transition-transform duration-4000 ease-out"
             style={{
               background: `conic-gradient(${tasks.map((task, index) => {
                 const startAngle = (index * 360) / tasks.length
@@ -294,8 +294,8 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted }) {
           disabled={isSpinning}
           className={`px-8 py-3 text-lg font-bold rounded-lg transition-all transform ${
             isSpinning
-              ? 'bg-gray-400 cursor-not-allowed'
-              : 'bg-green-500 hover:bg-green-600 hover:scale-105 active:scale-95'
+              ? 'bg-gray-600 cursor-not-allowed'
+              : 'bg-green-600 hover:bg-green-700 hover:scale-105 active:scale-95'
           } text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2`}
         >
           {isSpinning ? 'Spinning...' : '🎲 SPIN THE WHEEL'}
@@ -304,22 +304,22 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted }) {
 
       {/* Selected Task Display */}
       {selectedTask && (
-        <div className="text-center p-4 bg-green-50 rounded-lg border-2 border-green-200">
-          <h3 className="text-lg font-bold text-green-800 mb-2">🎉 Selected Task:</h3>
-          <p className="text-xl font-semibold text-green-700">{selectedTask.text}</p>
+        <div className="text-center p-4 bg-gray-700 rounded-lg border-2 border-green-500">
+          <h3 className="text-lg font-bold text-green-400 mb-2">🎉 Selected Task:</h3>
+          <p className="text-xl font-semibold text-green-300">{selectedTask.text}</p>
           {timeLeft === 0 ? (
             <>
-              <p className="text-sm text-green-600 mt-2">Time for a 25-minute Pomodoro session!</p>
+              <p className="text-sm text-green-300 mt-2">Time for a 25-minute Pomodoro session!</p>
               <button
                 onClick={startTimer}
-                className="mt-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                className="mt-4 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
               >
                 Start Timer
               </button>
             </>
           ) : (
             <>
-              <p className="text-2xl font-bold text-green-700 mt-2">{formatTime(timeLeft)}</p>
+              <p className="text-2xl font-bold text-green-300 mt-2">{formatTime(timeLeft)}</p>
               <div className="mt-4 space-y-2">
                 <button
                   onClick={completeTask}
