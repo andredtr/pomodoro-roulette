@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Navbar from "./layout/Navbar";
 import TaskManager from "./components/TaskManager";
 import RouletteWheel from "./components/RouletteWheel";
+import tomato from "./assets/tomato.svg";
 
 function App() {
   const [tasks, setTasks] = useState(() => {
@@ -41,16 +42,18 @@ function App() {
 
   return (
     <>
-      <main className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800">
+      <main className="min-h-screen bg-bgSecondary">
         <div className="container mx-auto p-4 ">
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-gray-100 mb-2">
-              🍅 Pomodoro Roulette
+            <h1 className="text-[48px] font-semibold text-white mb-2 flex items-center justify-center gap-2">
+              <img src={tomato} alt="Pomodoro Roulette logo" className="w-8 h-8" />
+              Pomodoro Roulette
             </h1>
-            <p className="text-gray-300">
+            <p className="text-white/60 max-w-xl mx-auto">
               Add your tasks and let the wheel decide what to work on next!
             </p>
           </div>
+          <div className="border-t border-[#202634] my-8"></div>
 
                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
            {/* Left Side - Task Manager */}

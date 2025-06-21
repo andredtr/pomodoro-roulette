@@ -1,1 +1,10 @@
 @import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: theme('fontFamily.sans');
+  background-color: theme('colors.bgNav');
+  color: white;
+}

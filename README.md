@@ -11,3 +11,7 @@ https://pomodo-roulette.netlify.app/
 - Spin the wheel to select a task
 - Timer for the task
 - Amazing :tada: Sound effects for the wheel and timer
+
+## Design
+
+For the latest design guidelines and visual direction, see [DESIGN_BRIEF.md](./DESIGN_BRIEF.md).

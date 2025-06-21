@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
+import dice from '../assets/dice.svg'
+import chevron from '../assets/chevron.svg'
 
 function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted }) {
   const [isSpinning, setIsSpinning] = useState(false)
@@ -230,9 +232,9 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted }) {
 
   if (tasks.length < 2) {
     return (
-      <div className="bg-gray-800 rounded-lg shadow-lg p-6 flex flex-col items-center justify-center h-96">
+      <div className="bg-[#161B22] rounded-[12px] shadow-lg p-12 flex flex-col items-center justify-center h-96">
         <div className="text-6xl mb-4">🎯</div>
-        <h2 className="text-xl font-bold mb-2 text-gray-100">Pomodoro Roulette</h2>
+        <h2 className="text-[24px] font-semibold mb-2 text-white text-center">Task Wheel</h2>
         {tasks.length === 0 ? (
           <p className="text-gray-400 text-center">Add some tasks to start spinning the wheel!</p>
         ) : (
@@ -245,21 +247,21 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted }) {
   }
 
   return (
-    <div className="bg-gray-800 rounded-lg shadow-lg p-6">
-      <h2 className="text-xl font-bold mb-4 text-gray-100 text-center">Pomodoro Roulette</h2>
+    <div className="bg-[#161B22] rounded-[12px] shadow-lg p-12">
+      <h2 className="text-[24px] font-semibold mb-4 text-white text-center">Task Wheel</h2>
       
       {/* Wheel Container */}
       <div className="relative flex justify-center mb-6">
         <div className="relative">
           {/* Pointer */}
-          <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-2 z-10">
-            <div className="w-0 h-0 border-l-4 border-r-4 border-b-8 border-l-transparent border-r-transparent border-b-red-500"></div>
+          <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-5 z-10">
+            <img src={chevron} className="w-6 h-6 animate-bounce" alt="pointer" />
           </div>
           
           {/* Wheel */}
           <div 
             ref={wheelRef}
-            className="w-64 h-64 rounded-full border-4 border-gray-600 relative overflow-hidden transition-transform duration-[4000ms] ease-out"
+            className="w-80 h-80 rounded-full border-4 border-gray-600 relative overflow-hidden shadow-inner transition-transform duration-[4000ms] ease-out"
             style={{
               background: `conic-gradient(${tasks.map((task, index) => {
                 const startAngle = (index * 360) / tasks.length
@@ -307,35 +309,31 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted }) {
         <button
           onClick={spin}
           disabled={isSpinning}
-          className={`px-8 py-3 text-lg font-bold rounded-lg transition-all transform ${
-            isSpinning
-              ? 'bg-gray-600 cursor-not-allowed'
-              : 'bg-green-600 hover:bg-green-700 hover:scale-105 active:scale-95'
-          } text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2`}
+          className={`px-8 py-3 text-lg font-medium rounded-full transition-all transform bg-gradient-to-r from-[#22C55E] to-[#16A34A] hover:brightness-110 active:brightness-90 focus:outline-none focus:ring-2 focus:ring-[#22C55E] focus:ring-offset-2 ${isSpinning ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
-          {isSpinning ? 'Spinning...' : '🎲 SPIN THE WHEEL'}
+          {isSpinning ? 'Spinning...' : (<span className="inline-flex items-center gap-2"><img src={dice} alt="spin" className="w-5 h-5" />Spin the Wheel</span>)}
         </button>
       </div>
 
       {/* Selected Task Display */}
       {selectedTask && (
-        <div className="text-center p-4 bg-gray-700 rounded-lg border-2 border-green-500">
-          <h3 className="text-lg font-bold text-green-400 mb-2">🎉 Selected Task:</h3>
+        <div className="text-center p-4 bg-white/10 backdrop-blur-md rounded-lg border-2 border-green-500">
+          <h3 className="text-sm uppercase tracking-wide text-green-400 mb-1">Selected task</h3>
           <p className="text-xl font-semibold text-green-300">{selectedTask.text}</p>
           {timeLeft === 0 ? (
             <>
-              <p className="text-sm text-green-300 mt-2">Time for a 25-minute Pomodoro session!</p>
+              <p className="text-xs text-green-300 mt-2">25-min session</p>
               <div className="mt-4 flex justify-center space-x-4">
                 <button
                   onClick={startTimer}
-                  className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                  className="px-4 py-2 rounded-full bg-gradient-to-r from-[#38BDF8] to-[#0EA5E9] text-white hover:brightness-110"
                 >
                   Start Timer
                 </button>
                 {timerStarted && (
                   <button
                     onClick={completeTask}
-                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                    className="px-4 py-2 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition-colors"
                   >
                     ✅ Complete Task
                   </button>
@@ -348,7 +346,7 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted }) {
               <div className="mt-4 flex justify-center">
                 <button
                   onClick={completeTask}
-                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                  className="px-4 py-2 rounded-full bg-blue-500 text-white hover:bg-blue-600 transition-colors"
                 >
                   ✅ Complete Task
                 </button>
