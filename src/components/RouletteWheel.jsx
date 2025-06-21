@@ -131,7 +131,7 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted }) {
   }
 
   const startTimer = () => {
-    setTimeLeft(10)
+    setTimeLeft(25 * 60)
   }
 
   const completeTask = () => {
