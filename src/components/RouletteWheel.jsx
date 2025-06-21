@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
+import DiceIcon from './icons/DiceIcon'
+import ChevronIcon from './icons/ChevronIcon'
 
 function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted }) {
   const [isSpinning, setIsSpinning] = useState(false)
@@ -226,9 +228,9 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted }) {
 
   if (tasks.length < 2) {
     return (
-      <div className="bg-gray-800 rounded-lg shadow-lg p-6 flex flex-col items-center justify-center h-96">
+      <div className="bg-bgCard rounded-md shadow-lg p-12 flex flex-col items-center justify-center h-96">
         <div className="text-6xl mb-4">🎯</div>
-        <h2 className="text-xl font-bold mb-2 text-gray-100">Pomodoro Roulette</h2>
+        <h2 className="mb-2 text-center">Task Wheel</h2>
         {tasks.length === 0 ? (
           <p className="text-gray-400 text-center">Add some tasks to start spinning the wheel!</p>
         ) : (
@@ -241,21 +243,21 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted }) {
   }
 
   return (
-    <div className="bg-gray-800 rounded-lg shadow-lg p-6">
-      <h2 className="text-xl font-bold mb-4 text-gray-100 text-center">Pomodoro Roulette</h2>
+    <div className="bg-bgCard rounded-md shadow-lg px-6 py-12">
+      <h2 className="mb-6 text-center">Task Wheel</h2>
       
       {/* Wheel Container */}
       <div className="relative flex justify-center mb-6">
         <div className="relative">
           {/* Pointer */}
-          <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-2 z-10">
-            <div className="w-0 h-0 border-l-4 border-r-4 border-b-8 border-l-transparent border-r-transparent border-b-red-500"></div>
+          <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-10 text-accentPrimary">
+            <ChevronIcon className="w-6 h-6" />
           </div>
           
           {/* Wheel */}
-          <div 
+          <div
             ref={wheelRef}
-            className="w-64 h-64 rounded-full border-4 border-gray-600 relative overflow-hidden transition-transform duration-[4000ms] ease-out"
+            className="w-80 h-80 rounded-full border-4 border-gray-600 relative overflow-hidden transition-transform duration-[4000ms] ease-out"
             style={{
               background: `conic-gradient(${tasks.map((task, index) => {
                 const startAngle = (index * 360) / tasks.length
@@ -303,34 +305,41 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted }) {
         <button
           onClick={spin}
           disabled={isSpinning}
-          className={`px-8 py-3 text-lg font-bold rounded-lg transition-all transform ${
+          className={`px-8 h-12 rounded-pill inline-flex items-center justify-center gap-2 font-medium transition-all ${
             isSpinning
               ? 'bg-gray-600 cursor-not-allowed'
-              : 'bg-green-600 hover:bg-green-700 hover:scale-105 active:scale-95'
-          } text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2`}
+              : 'bg-gradient-to-r from-accentSuccess to-green-700 hover:brightness-110 active:brightness-90'
+          } text-white focus:outline-none focus:ring-2 focus:ring-accentSuccess`}
         >
-          {isSpinning ? 'Spinning...' : '🎲 SPIN THE WHEEL'}
+          {isSpinning ? (
+            'Spinning...'
+          ) : (
+            <>
+              <DiceIcon className="w-5 h-5" />
+              <span>Spin the Wheel</span>
+            </>
+          )}
         </button>
       </div>
 
       {/* Selected Task Display */}
       {selectedTask && (
-        <div className="text-center p-4 bg-gray-700 rounded-lg border-2 border-green-500">
-          <h3 className="text-lg font-bold text-green-400 mb-2">🎉 Selected Task:</h3>
-          <p className="text-xl font-semibold text-green-300">{selectedTask.text}</p>
+        <div className="text-center p-4 mx-auto mt-6 w-4/5 rounded-md backdrop-blur-md bg-[rgba(34,44,60,0.45)] border-2 border-accentSuccess">
+          <h3 className="text-sm text-white/60 mb-1">Selected task</h3>
+          <p className="text-xl font-semibold mb-1">{selectedTask.text}</p>
           {timeLeft === 0 ? (
             <>
-              <p className="text-sm text-green-300 mt-2">Time for a 25-minute Pomodoro session!</p>
+              <p className="text-xs text-white/60 mt-1">25-min session</p>
               <button
                 onClick={startTimer}
-                className="mt-4 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                className="mt-4 px-6 h-12 rounded-pill bg-gradient-to-r from-accentInfo to-blue-600 text-white hover:brightness-110"
               >
                 Start Timer
               </button>
             </>
           ) : (
             <>
-              <p className="text-2xl font-bold text-green-300 mt-2">{formatTime(timeLeft)}</p>
+              <p className="text-2xl font-bold text-white mt-2">{formatTime(timeLeft)}</p>
               <div className="mt-4 space-y-2">
                 <button
                   onClick={completeTask}
