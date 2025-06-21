@@ -39,12 +39,18 @@ function RouletteWheel({ tasks, onTaskSelected }) {
     }, 3000)
   }
 
-  if (tasks.length === 0) {
+  if (tasks.length < 2) {
     return (
       <div className="bg-white rounded-lg shadow-lg p-6 flex flex-col items-center justify-center h-96">
         <div className="text-6xl mb-4">🎯</div>
         <h2 className="text-xl font-bold mb-2 text-gray-800">Pomodoro Roulette</h2>
-        <p className="text-gray-500 text-center">Add some tasks to start spinning the wheel!</p>
+        {tasks.length === 0 ? (
+          <p className="text-gray-500 text-center">Add some tasks to start spinning the wheel!</p>
+        ) : (
+          <p className="text-gray-500 text-center">
+            You have {tasks.length} task. Add at least one more task to spin the wheel!
+          </p>
+        )}
       </div>
     )
   }
@@ -76,26 +82,30 @@ function RouletteWheel({ tasks, onTaskSelected }) {
           >
             {/* Task Labels */}
             {tasks.map((task, index) => {
-              const angle = (index * 360) / tasks.length + (180 / tasks.length)
-              const radius = 80
+              const degreesPerTask = 360 / tasks.length
+              const angle = (index * degreesPerTask) + (degreesPerTask / 2)
+              const radius = 85
               const x = Math.cos((angle - 90) * Math.PI / 180) * radius
               const y = Math.sin((angle - 90) * Math.PI / 180) * radius
               
               return (
                 <div
                   key={task.id}
-                  className="absolute text-white text-xs font-bold pointer-events-none select-none"
+                  className="absolute text-white text-sm font-bold pointer-events-none select-none"
                   style={{
                     left: '50%',
                     top: '50%',
-                    transform: `translate(${x - 50}px, ${y - 50}px) rotate(${angle}deg)`,
-                    textShadow: '1px 1px 2px rgba(0,0,0,0.7)',
-                    maxWidth: '60px',
+                    transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`,
+                    textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
+                    maxWidth: '80px',
                     textAlign: 'center',
-                    lineHeight: '1.2'
+                    lineHeight: '1.1',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis'
                   }}
                 >
-                  {task.text.length > 12 ? task.text.substring(0, 12) + '...' : task.text}
+                  {task.text.length > 15 ? task.text.substring(0, 15) + '...' : task.text}
                 </div>
               )
             })}
