@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import Navbar from "./layout/Navbar";
 import TaskManager from "./components/TaskManager";
 import RouletteWheel from "./components/RouletteWheel";
+import TomatoIcon from "./components/icons/TomatoIcon";
 
 function App() {
   const [tasks, setTasks] = useState(() => {
@@ -41,30 +41,32 @@ function App() {
 
   return (
     <>
-      <main className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800">
-        <div className="container mx-auto p-4 ">
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-gray-100 mb-2">
-              🍅 Pomodoro Roulette
-            </h1>
-            <p className="text-gray-300">
+      <main className="min-h-screen bg-bg-outer">
+        <div className="max-w-7xl mx-auto p-4 ">
+          <header className="text-center mb-8">
+            <div className="flex justify-center items-center gap-2 mb-2">
+              <TomatoIcon className="w-12 h-12" />
+              <h1 className="text-5xl font-semibold tracking-tight">Pomodoro Roulette</h1>
+            </div>
+            <p className="text-sm max-w-xl mx-auto text-white/60">
               Add your tasks and let the wheel decide what to work on next!
             </p>
-          </div>
+            <div className="mt-8 h-px bg-white/20"></div>
+          </header>
 
-                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
            {/* Left Side - Task Manager */}
            <div className="order-2 lg:order-1 lg:col-span-4">
-             <TaskManager 
+             <TaskManager
                tasks={tasks}
                onAddTask={addTask}
                onDeleteTask={deleteTask}
              />
            </div>
-           
+
            {/* Right Side - Roulette Wheel */}
            <div className="order-1 lg:order-2 lg:col-span-8">
-             <RouletteWheel 
+             <RouletteWheel
                tasks={tasks}
                onTaskSelected={handleTaskSelected}
                onTaskCompleted={handleTaskCompleted}
