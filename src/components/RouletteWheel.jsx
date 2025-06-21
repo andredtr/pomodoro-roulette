@@ -302,29 +302,29 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted }) {
         <div className="text-center p-4 bg-green-50 rounded-lg border-2 border-green-200">
           <h3 className="text-lg font-bold text-green-800 mb-2">🎉 Selected Task:</h3>
           <p className="text-xl font-semibold text-green-700">{selectedTask.text}</p>
-          {timeLeft === 0 ? (
-            <>
-              <p className="text-sm text-green-600 mt-2">Time for a 25-minute Pomodoro session!</p>
-              <button
-                onClick={startTimer}
-                className="mt-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-              >
-                Start Timer
-              </button>
-            </>
-          ) : (
-            <>
+          <>
+            {timeLeft > 0 ? (
               <p className="text-2xl font-bold text-green-700 mt-2">{formatTime(timeLeft)}</p>
-              <div className="mt-4 space-y-2">
+            ) : (
+              <p className="text-sm text-green-600 mt-2">Time for a 25-minute Pomodoro session!</p>
+            )}
+            <div className="mt-4 space-y-2">
+              {timeLeft === 0 && (
                 <button
-                  onClick={completeTask}
-                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                  onClick={startTimer}
+                  className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
                 >
-                  ✅ Complete Task
+                  Start Timer
                 </button>
-              </div>
-            </>
-          )}
+              )}
+              <button
+                onClick={completeTask}
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+              >
+                ✅ Complete Task
+              </button>
+            </div>
+          </>
         </div>
       )}
     </div>
