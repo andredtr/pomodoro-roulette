@@ -4,7 +4,5 @@
 @tailwind utilities;
 
 body {
-  font-family: theme('fontFamily.sans');
-  background-color: theme('colors.bgNav');
-  color: white;
+  @apply font-sans bg-bgNav text-white;
 }
