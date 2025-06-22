@@ -19,11 +19,11 @@ function BreakTimer({
   if (timeLeft === 0 && !timerStarted) {
     return (
       <div className="text-center p-4 mx-auto mt-6 w-4/5 rounded-md backdrop-blur-md bg-[rgba(34,44,60,0.45)] border-2 border-accent-success">
-        <p className="text-sm text-green-300 mt-2">Time for a {breakDuration}-minute break!</p>
+        <p className="text-sm text-blue-300 mt-2">Time for a {breakDuration}-minute break!</p>
         <div className="mt-4 flex justify-center">
           <button
             onClick={onStartBreak}
-            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
           >
             Start Break
           </button>
