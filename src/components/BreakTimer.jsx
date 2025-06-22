@@ -23,7 +23,7 @@ function BreakTimer({
         <div className="mt-4 flex justify-center">
           <button
             onClick={onStartBreak}
-            className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
+            className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 cursor-pointer"
           >
             Start Break
           </button>
@@ -38,13 +38,13 @@ function BreakTimer({
       <div className="mt-4 flex justify-center space-x-4">
         <button
           onClick={isPaused ? onResumeBreak : onPauseBreak}
-          className="px-4 py-2 bg-purple-200 text-white rounded hover:bg-purple-400 transition-colors"
+          className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 transition-colors cursor-pointer"
         >
           {isPaused ? 'Resume' : 'Pause'}
         </button>
         <button
           onClick={onEndBreak}
-          className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 transition-colors"
+          className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 transition-colors cursor-pointer"
         >
           End Break
         </button>

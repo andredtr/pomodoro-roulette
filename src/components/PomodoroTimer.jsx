@@ -27,7 +27,7 @@ function PomodoroTimer({
           <div className="mt-4 flex justify-center space-x-4">
             <button
               onClick={onStartTimer}
-              className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+              className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 cursor-pointer"
             >
               Start Timer
             </button>
@@ -47,13 +47,13 @@ function PomodoroTimer({
           <div className="mt-4 flex justify-center space-x-4">
             <button
               onClick={isPaused ? onResumeTimer : onPauseTimer}
-              className="px-4 py-2 bg-green-200 text-white rounded hover:bg-green-400 transition-colors"
+              className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors cursor-pointer"
             >
               {isPaused ? 'Resume' : 'Pause'}
             </button>
             <button
               onClick={onCompleteTask}
-              className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
+              className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors cursor-pointer"
             >
               ✅ Complete Task
             </button>
