@@ -6,8 +6,7 @@ function AnalyticsPanel({ completedTasks, dailyPomodoros }) {
   const [page, setPage] = useState(0)
 
   useEffect(() => {
-    const lastPage = Math.max(0, Math.ceil(completedTasks.length / pageSize) - 1)
-    setPage(lastPage)
+    setPage(0)
   }, [completedTasks.length])
 
   const totalPages = Math.ceil(completedTasks.length / pageSize)
@@ -36,20 +35,20 @@ function AnalyticsPanel({ completedTasks, dailyPomodoros }) {
             <div className="flex justify-between mt-4">
               <button
                 type="button"
-                onClick={() => setPage(p => p + 1)}
-                disabled={page >= totalPages - 1}
+                onClick={() => setPage(p => Math.max(0, p - 1))}
+                disabled={page <= 0}
                 className={`px-3 py-1 rounded-pill flex items-center gap-1 bg-bg-secondary text-sm ${
-                  page >= totalPages - 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-bg-secondary/80'
+                  page <= 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-bg-secondary/80'
                 }`}
               >
                 <ChevronIcon className="w-4 h-4 -rotate-90" /> Prev
               </button>
               <button
                 type="button"
-                onClick={() => setPage(p => Math.max(0, p - 1))}
-                disabled={page <= 0}
+                onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
+                disabled={page >= totalPages - 1}
                 className={`px-3 py-1 rounded-pill flex items-center gap-1 bg-bg-secondary text-sm ${
-                  page <= 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-bg-secondary/80'
+                  page >= totalPages - 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-bg-secondary/80'
                 }`}
               >
                 Next <ChevronIcon className="w-4 h-4 rotate-90" />
