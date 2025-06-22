@@ -38,6 +38,7 @@ export default function usePomodoroTimer(durationMinutes, onComplete) {
       }
     } else if (timeLeft === 0 && timerStarted) {
       onComplete?.()
+      setTimerStarted(false)
     }
 
     return () => clearTimeout(timerRef.current)
