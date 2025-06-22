@@ -30,20 +30,20 @@
 
 @layer utilities {
   @keyframes paper-flutter {
-    0% { transform: translateX(-50%) rotate(0deg) scale(1); }
-    20% { transform: translateX(-50%) rotate(-4deg) scale(1.08); }
-    40% { transform: translateX(-50%) rotate(3deg) scale(0.95); }
-    60% { transform: translateX(-50%) rotate(-2deg) scale(1.03); }
-    80% { transform: translateX(-50%) rotate(2deg) scale(0.97); }
-    100% { transform: translateX(-50%) rotate(0deg) scale(1); }
+    0% { transform: translateX(-50%) rotate(180deg) scale(1); }
+    20% { transform: translateX(-50%) rotate(176deg) scale(1.08); }
+    40% { transform: translateX(-50%) rotate(183deg) scale(0.95); }
+    60% { transform: translateX(-50%) rotate(178deg) scale(1.03); }
+    80% { transform: translateX(-50%) rotate(182deg) scale(0.97); }
+    100% { transform: translateX(-50%) rotate(180deg) scale(1); }
   }
   
   @keyframes paper-idle {
-    0% { transform: translateX(-50%) rotate(0deg); }
-    25% { transform: translateX(-50%) rotate(1deg); }
-    50% { transform: translateX(-50%) rotate(0deg); }
-    75% { transform: translateX(-50%) rotate(-1deg); }
-    100% { transform: translateX(-50%) rotate(0deg); }
+    0% { transform: translateX(-50%) rotate(180deg); }
+    25% { transform: translateX(-50%) rotate(181deg); }
+    50% { transform: translateX(-50%) rotate(180deg); }
+    75% { transform: translateX(-50%) rotate(179deg); }
+    100% { transform: translateX(-50%) rotate(180deg); }
   }
   
   .animate-paper-flutter {
