@@ -13,6 +13,13 @@ export default function usePomodoroTimer(durationMinutes, onComplete) {
     setIsPaused(false)
   }
 
+  const startTimerWithSeconds = (seconds) => {
+    clearTimeout(timerRef.current)
+    setTimeLeft(seconds)
+    setTimerStarted(true)
+    setIsPaused(false)
+  }
+
   const pauseTimer = () => {
     clearTimeout(timerRef.current)
     setIsPaused(true)
@@ -49,6 +56,7 @@ export default function usePomodoroTimer(durationMinutes, onComplete) {
     timerStarted,
     isPaused,
     startTimer,
+    startTimerWithSeconds,
     pauseTimer,
     resumeTimer,
     reset,

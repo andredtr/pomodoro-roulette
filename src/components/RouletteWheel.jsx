@@ -8,6 +8,8 @@ import usePomodoroTimer from '../hooks/usePomodoroTimer'
 import useSettings from '../hooks/useSettings'
 import WheelCanvas from './WheelCanvas'
 
+const ACTIVE_KEY = 'activePomodoro'
+
 function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroComplete, startTaskId, onStartTaskConsumed }) {
   const [isSpinning, setIsSpinning] = useState(false)
   const [selectedTask, setSelectedTask] = useState(null)
@@ -28,6 +30,7 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroCompl
     timerStarted,
     isPaused,
     startTimer,
+    startTimerWithSeconds,
     pauseTimer,
     resumeTimer,
     reset: resetTimer,
@@ -37,7 +40,16 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroCompl
     if (onPomodoroComplete && selectedTask) {
       onPomodoroComplete(selectedTask.id)
     }
+    localStorage.removeItem(ACTIVE_KEY)
   })
+
+  const clearActivePomodoro = () => {
+    try {
+      localStorage.removeItem(ACTIVE_KEY)
+    } catch {
+      // ignore
+    }
+  }
 
   const colors = [
     '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
@@ -50,10 +62,43 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroCompl
     if (task) {
       setSelectedTask(task)
       startTimer(pomodoroDuration)
+      try {
+        localStorage.setItem(
+          ACTIVE_KEY,
+          JSON.stringify({ taskId: task.id, start: Date.now(), duration: pomodoroDuration })
+        )
+      } catch {
+        // ignore
+      }
       if (onTaskSelected) onTaskSelected(task)
     }
     if (onStartTaskConsumed) onStartTaskConsumed()
   }, [startTaskId, tasks, pomodoroDuration])
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(ACTIVE_KEY)
+      if (!stored) return
+      const { taskId, start, duration } = JSON.parse(stored)
+      const task = tasks.find(t => t.id === taskId)
+      if (!task) {
+        localStorage.removeItem(ACTIVE_KEY)
+        return
+      }
+      const elapsed = Math.floor((Date.now() - start) / 1000)
+      const total = duration * 60
+      const remaining = total - elapsed
+      if (remaining > 0) {
+        setSelectedTask(task)
+        startTimerWithSeconds(remaining)
+        if (onTaskSelected) onTaskSelected(task)
+      } else {
+        localStorage.removeItem(ACTIVE_KEY)
+      }
+    } catch {
+      // ignore
+    }
+  }, [tasks])
 
   const formatTime = (seconds) => {
     const m = String(Math.floor(seconds / 60)).padStart(2, '0')
@@ -172,7 +217,23 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroCompl
     }
   }
 
-  const startTimerHandler = () => startTimer(pomodoroDuration)
+  const startTimerHandler = () => {
+    if (!selectedTask) return
+    startTimer(pomodoroDuration)
+    try {
+      clearActivePomodoro()
+      localStorage.setItem(
+        ACTIVE_KEY,
+        JSON.stringify({
+          taskId: selectedTask.id,
+          start: Date.now(),
+          duration: pomodoroDuration,
+        })
+      )
+    } catch {
+      // ignore
+    }
+  }
 
   const completeTask = () => {
     if (!selectedTask) return
@@ -187,6 +248,7 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroCompl
         onPomodoroComplete(selectedTask.id)
       }
       resetTimer()
+      clearActivePomodoro()
       setSelectedTask(null)
       if (onTaskCompleted) {
         onTaskCompleted(selectedTask.id)
@@ -207,6 +269,7 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroCompl
 
     // Clear any existing timers and reset all state
     resetTimer()
+    clearActivePomodoro()
     stopSpinningSound() // Stop any existing spinning sound
     setIsSpinning(true)
     setSelectedTask(null)
