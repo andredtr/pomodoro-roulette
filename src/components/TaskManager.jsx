@@ -34,7 +34,7 @@ function TaskManager({ tasks, onAddTask, onDeleteTask, onStartTimer, onReorderTa
 
   return (
     <div className="bg-bg-card rounded-md shadow-lg p-6 relative z-10">
-      <h2 className="mb-4">Task Manager</h2>
+      <h2 className="mb-4">Create your tasks</h2>
       
       {/* Add Task Form */}
       <form onSubmit={handleSubmit} className="mb-6">
