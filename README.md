@@ -11,3 +11,5 @@ https://pomodo-roulette.netlify.app/
 - Spin the wheel to select a task
 - Timer for the task
 - Amazing :tada: Sound effects for the wheel and timer
+- Track completed tasks and how many pomodoros each took
+- Daily count of completed pomodoros

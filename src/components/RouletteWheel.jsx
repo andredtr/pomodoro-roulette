@@ -4,7 +4,7 @@ import ChevronIcon from './icons/ChevronIcon'
 import SettingsIcon from './icons/SettingsIcon'
 import SettingsModal from './SettingsModal'
 
-function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, startTaskId, onStartTaskConsumed }) {
+function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroComplete, startTaskId, onStartTaskConsumed }) {
   const [isSpinning, setIsSpinning] = useState(false)
   const [selectedTask, setSelectedTask] = useState(null)
   const [timeLeft, setTimeLeft] = useState(0)
@@ -230,6 +230,9 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, startTaskId, on
       // Timer just completed - play sound only once
       document.title = 'Pomodoro Roulette - Timer Complete!'
       playCompletionSound()
+      if (timerStarted && onPomodoroComplete) {
+        onPomodoroComplete(selectedTask.id)
+      }
     } else {
       document.title = 'Pomodoro Roulette'
     }
