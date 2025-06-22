@@ -3,6 +3,7 @@ import useLocalStorage from "./hooks/useLocalStorage";
 import TaskManager from "./components/TaskManager";
 import RouletteWheel from "./components/RouletteWheel";
 import AnalyticsPanel from "./components/AnalyticsPanel";
+import useInsights from "./hooks/useInsights";
 import TomatoIcon from "./components/icons/TomatoIcon";
 
 function App() {
@@ -21,6 +22,8 @@ function App() {
   };
   const [selectedTask, setSelectedTask] = useState(null);
   const [startTaskId, setStartTaskId] = useState(null);
+  const { generateInsights } = useInsights();
+  const [insights, setInsights] = useState('');
 
   useEffect(() => {
     setTasks(prev => prev.map(t => ({ pomodoros: t.pomodoros || 0, ...t })))
@@ -120,6 +123,22 @@ function App() {
               onReorderTasks={reorderTasks}
             />
            <AnalyticsPanel completedTasks={completedTasks} dailyPomodoros={dailyPomodoros} />
+           <button
+              type="button"
+              onClick={() => setInsights(generateInsights())}
+              className="mt-4 px-4 py-2 bg-accent-info text-white rounded hover:bg-accent-info/80"
+           >
+              Export data insights
+           </button>
+           {insights && (
+             <textarea
+               readOnly
+               value={insights}
+               onFocus={(e) => e.target.select()}
+               className="mt-2 w-full p-2 rounded bg-bg-secondary text-white text-sm"
+               rows="6"
+             />
+           )}
            </div>
 
            {/* Right Side - Roulette Wheel */}
