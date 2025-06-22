@@ -41,6 +41,7 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroCompl
       onPomodoroComplete(selectedTask.id)
     }
     setBreakAvailable(true)
+    clearActivePomodoro()
   })
 
   const {
@@ -58,6 +59,47 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroCompl
 
   const [breakAvailable, setBreakAvailable] = useState(false)
 
+  const recordActivePomodoro = (taskId, startTime = Date.now(), duration = pomodoroDuration) => {
+    try {
+      localStorage.setItem('activePomodoro', JSON.stringify({ taskId, startTime, duration }))
+    } catch {
+      // ignore write errors
+    }
+  }
+
+  const clearActivePomodoro = () => {
+    try {
+      localStorage.removeItem('activePomodoro')
+    } catch {
+      // ignore remove errors
+    }
+  }
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('activePomodoro')
+      if (!stored) return
+      const { taskId, startTime, duration } = JSON.parse(stored)
+      const task = tasks.find(t => t.id === taskId)
+      if (!task) {
+        clearActivePomodoro()
+        return
+      }
+      const elapsed = Math.floor((Date.now() - startTime) / 1000)
+      const remaining = duration * 60 - elapsed
+      if (remaining > 0) {
+        setSelectedTask(task)
+        startTimer(remaining / 60)
+        if (onTaskSelected) onTaskSelected(task)
+      } else {
+        clearActivePomodoro()
+      }
+    } catch {
+      // ignore read errors
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const colors = [
     '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
     '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9'
@@ -69,6 +111,7 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroCompl
     if (task) {
       setSelectedTask(task)
       startTimer(pomodoroDuration)
+      recordActivePomodoro(task.id)
       if (onTaskSelected) onTaskSelected(task)
     }
     if (onStartTaskConsumed) onStartTaskConsumed()
@@ -195,6 +238,7 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroCompl
     resetBreakTimer()
     setBreakAvailable(false)
     startTimer(pomodoroDuration)
+    if (selectedTask) recordActivePomodoro(selectedTask.id)
   }
 
   const completeTask = () => {
@@ -210,6 +254,7 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroCompl
         onPomodoroComplete(selectedTask.id)
       }
       resetTimer()
+      clearActivePomodoro()
       setSelectedTask(null)
       setBreakAvailable(true)
       if (onTaskCompleted) {
@@ -235,6 +280,7 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroCompl
     resetTimer()
     resetBreakTimer()
     setBreakAvailable(false)
+    clearActivePomodoro()
     stopSpinningSound() // Stop any existing spinning sound
     setIsSpinning(true)
     setSelectedTask(null)
