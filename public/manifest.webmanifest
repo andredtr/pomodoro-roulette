@@ -1,0 +1,16 @@
+{
+  "name": "Pomodoro Roulette",
+  "short_name": "Pomodoro",
+  "description": "Gamified focus timer with a roulette wheel.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "/tomato-timer.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
