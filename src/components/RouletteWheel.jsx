@@ -128,6 +128,11 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroCompl
     if (!soundsEnabled) return
     try {
       const audioContext = new (window.AudioContext || window.webkitAudioContext)()
+      // Safari may start the AudioContext in a suspended state. Resume it to
+      // ensure sounds play after a user interaction.
+      if (audioContext.state === 'suspended') {
+        audioContext.resume().catch(() => {})
+      }
 
       // Create a repeating tick sound that gets slower over time
       const playTick = (startTime) => {
@@ -211,6 +216,11 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroCompl
     if (!soundsEnabled) return
     try {
       const audioContext = new (window.AudioContext || window.webkitAudioContext)()
+      // Safari may start the AudioContext in a suspended state. Resume it to
+      // ensure sounds play after a user interaction.
+      if (audioContext.state === 'suspended') {
+        audioContext.resume().catch(() => {})
+      }
 
       const oscillator = audioContext.createOscillator()
       const gainNode = audioContext.createGain()
