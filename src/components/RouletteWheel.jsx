@@ -388,9 +388,9 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroCompl
           <div className="text-center mb-4">
             <button
               onClick={spin}
-              disabled={isSpinning}
+              disabled={isSpinning || timerStarted}
               className={`px-8 h-12 rounded-pill inline-flex items-center justify-center gap-2 font-medium transition-all ${
-                isSpinning
+                isSpinning || timerStarted
                   ? 'bg-gray-600 cursor-not-allowed'
                   : 'bg-gradient-to-r from-accent-success to-green-700 hover:brightness-110 active:brightness-90'
               } text-white focus:outline-none focus:ring-2 focus:ring-accent-success`}
