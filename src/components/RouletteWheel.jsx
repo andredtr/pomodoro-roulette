@@ -4,6 +4,7 @@ import ChevronIcon from './icons/ChevronIcon'
 import SettingsIcon from './icons/SettingsIcon'
 import SettingsModal from './SettingsModal'
 import PomodoroTimer from './PomodoroTimer'
+import BreakTimer from './BreakTimer'
 import usePomodoroTimer from '../hooks/usePomodoroTimer'
 import useSettings from '../hooks/useSettings'
 import WheelCanvas from './WheelCanvas'
@@ -19,8 +20,10 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroCompl
   const {
     soundsEnabled,
     pomodoroDuration,
+    breakDuration,
     setSoundsEnabled,
     setPomodoroDuration,
+    setBreakDuration,
   } = useSettings()
 
   const {
@@ -37,7 +40,23 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroCompl
     if (onPomodoroComplete && selectedTask) {
       onPomodoroComplete(selectedTask.id)
     }
+    setBreakAvailable(true)
   })
+
+  const {
+    timeLeft: breakTimeLeft,
+    timerStarted: breakTimerStarted,
+    isPaused: breakPaused,
+    startTimer: startBreakTimer,
+    pauseTimer: pauseBreakTimer,
+    resumeTimer: resumeBreakTimer,
+    reset: resetBreakTimer,
+  } = usePomodoroTimer(breakDuration, () => {
+    document.title = 'Pomodoro Roulette - Break Complete!'
+    setBreakAvailable(false)
+  })
+
+  const [breakAvailable, setBreakAvailable] = useState(false)
 
   const colors = [
     '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
@@ -172,7 +191,11 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroCompl
     }
   }
 
-  const startTimerHandler = () => startTimer(pomodoroDuration)
+  const startTimerHandler = () => {
+    resetBreakTimer()
+    setBreakAvailable(false)
+    startTimer(pomodoroDuration)
+  }
 
   const completeTask = () => {
     if (!selectedTask) return
@@ -188,6 +211,7 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroCompl
       }
       resetTimer()
       setSelectedTask(null)
+      setBreakAvailable(true)
       if (onTaskCompleted) {
         onTaskCompleted(selectedTask.id)
       }
@@ -195,18 +219,22 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroCompl
   }
 
   useEffect(() => {
-    if (timeLeft > 0 && selectedTask) {
+    if (breakTimeLeft > 0 && breakTimerStarted) {
+      document.title = `${formatTime(breakTimeLeft)} Break - Pomodoro Roulette`
+    } else if (timeLeft > 0 && selectedTask) {
       document.title = `${formatTime(timeLeft)} Pomodoro Roulette`
-    } else if (timeLeft === 0 && !timerStarted) {
+    } else if (timeLeft === 0 && !timerStarted && breakTimeLeft === 0) {
       document.title = 'Pomodoro Roulette'
     }
-  }, [timeLeft, selectedTask, timerStarted])
+  }, [timeLeft, selectedTask, timerStarted, breakTimeLeft, breakTimerStarted])
 
   const spin = () => {
     if (tasks.length === 0 || isSpinning) return
 
     // Clear any existing timers and reset all state
     resetTimer()
+    resetBreakTimer()
+    setBreakAvailable(false)
     stopSpinningSound() // Stop any existing spinning sound
     setIsSpinning(true)
     setSelectedTask(null)
@@ -337,14 +365,33 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroCompl
         onResumeTimer={resumeTimer}
         onCompleteTask={completeTask}
       />
+      {(breakAvailable || breakTimerStarted) && (
+        <BreakTimer
+          timeLeft={breakTimeLeft}
+          timerStarted={breakTimerStarted}
+          isPaused={breakPaused}
+          breakDuration={breakDuration}
+          onStartBreak={() => {
+            startBreakTimer(breakDuration)
+          }}
+          onPauseBreak={pauseBreakTimer}
+          onResumeBreak={resumeBreakTimer}
+          onEndBreak={() => {
+            resetBreakTimer()
+            setBreakAvailable(false)
+          }}
+        />
+      )}
     </div>
     {showSettings && (
       <SettingsModal
         initialSoundsEnabled={soundsEnabled}
         initialPomodoroDuration={pomodoroDuration}
-        onSave={({ soundsEnabled: se, pomodoroDuration: pd }) => {
+        initialBreakDuration={breakDuration}
+        onSave={({ soundsEnabled: se, pomodoroDuration: pd, breakDuration: bd }) => {
           setSoundsEnabled(se)
           setPomodoroDuration(pd)
+          setBreakDuration(bd)
         }}
         onClose={() => setShowSettings(false)}
       />
