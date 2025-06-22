@@ -182,6 +182,10 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroCompl
     )
 
     if (confirmed) {
+      const wasPomodoroStarted = timerStarted || timeLeft > 0
+      if (wasPomodoroStarted && onPomodoroComplete) {
+        onPomodoroComplete(selectedTask.id)
+      }
       resetTimer()
       setSelectedTask(null)
       if (onTaskCompleted) {
