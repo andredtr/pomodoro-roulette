@@ -26,6 +26,25 @@ function App() {
     setTasks(prev => prev.map(t => ({ pomodoros: t.pomodoros || 0, ...t })))
   }, [])
 
+  useEffect(() => {
+    try {
+      const hasUsedApp = localStorage.getItem('hasUsedApp')
+      if (!hasUsedApp) {
+        if (tasks.length === 0) {
+          const now = Date.now()
+          const placeholders = [
+            { id: now, text: 'Learn how to use the app.', createdAt: new Date(), pomodoros: 0 },
+            { id: now + 1, text: 'Delete these placeholder tasks.', createdAt: new Date(), pomodoros: 0 },
+          ]
+          setTasks(placeholders)
+        }
+        localStorage.setItem('hasUsedApp', 'true')
+      }
+    } catch {
+      // ignore localStorage errors
+    }
+  }, [])
+
 
   const addTask = (taskText) => {
     const newTask = {
