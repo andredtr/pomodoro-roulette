@@ -31,14 +31,12 @@ function PomodoroTimer({
             >
               Start Timer
             </button>
-            {timerStarted && (
-              <button
-                onClick={onCompleteTask}
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-              >
-                ✅ Complete Task
-              </button>
-            )}
+            <button
+              onClick={onCompleteTask}
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+            >
+              ✅ Complete Task
+            </button>
           </div>
         </>
       ) : (

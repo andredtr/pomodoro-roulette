@@ -6,7 +6,6 @@ import SettingsModal from './SettingsModal'
 import PomodoroTimer from './PomodoroTimer'
 import BreakTimer from './BreakTimer'
 import TimerProgressBar from './TimerProgressBar'
-import usePomodoroTimer from '../hooks/usePomodoroTimer'
 import useSettings from '../hooks/useSettings'
 import WheelCanvas from './WheelCanvas'
 
@@ -27,36 +26,133 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroCompl
     setBreakDuration,
   } = useSettings()
 
-  const {
-    timeLeft,
-    timerStarted,
-    isPaused,
-    startTimer,
-    pauseTimer,
-    resumeTimer,
-    reset: resetTimer,
-  } = usePomodoroTimer(pomodoroDuration, () => {
-    document.title = 'Pomodoro Roulette - Timer Complete!'
-    playCompletionSound()
-    if (onPomodoroComplete && selectedTask) {
-      onPomodoroComplete(selectedTask.id)
-    }
-    setBreakAvailable(true)
-    clearActivePomodoro()
-  })
+  const [timeLeft, setTimeLeft] = useState(0)
+  const [timerStarted, setTimerStarted] = useState(false)
+  const [isPaused, setIsPaused] = useState(false)
+  const taskIntervalRef = useRef(null)
+  const taskEndTimeRef = useRef(null)
 
-  const {
-    timeLeft: breakTimeLeft,
-    timerStarted: breakTimerStarted,
-    isPaused: breakPaused,
-    startTimer: startBreakTimer,
-    pauseTimer: pauseBreakTimer,
-    resumeTimer: resumeBreakTimer,
-    reset: resetBreakTimer,
-  } = usePomodoroTimer(breakDuration, () => {
-    document.title = 'Pomodoro Roulette - Break Complete!'
+  const [breakTimeLeft, setBreakTimeLeft] = useState(0)
+  const [breakTimerStarted, setBreakTimerStarted] = useState(false)
+  const [breakPaused, setBreakPaused] = useState(false)
+  const breakIntervalRef = useRef(null)
+  const breakEndTimeRef = useRef(null)
+
+  const clearTaskTimer = () => {
+    clearInterval(taskIntervalRef.current)
+    taskIntervalRef.current = null
+  }
+
+  const clearBreakTimer = () => {
+    clearInterval(breakIntervalRef.current)
+    breakIntervalRef.current = null
+  }
+
+  const updateTaskTimeLeft = () => {
+    if (!taskEndTimeRef.current) return
+    const remaining = Math.round((taskEndTimeRef.current - Date.now()) / 1000)
+    if (remaining > 0) {
+      setTimeLeft(remaining)
+    } else {
+      setTimeLeft(0)
+      clearTaskTimer()
+      if (timerStarted) {
+        setTimerStarted(false)
+        document.title = 'Pomodoro Roulette - Timer Complete!'
+        playCompletionSound()
+        if (onPomodoroComplete && selectedTask) {
+          onPomodoroComplete(selectedTask.id)
+        }
+        setBreakAvailable(true)
+        clearActivePomodoro()
+      }
+    }
+  }
+
+  const updateBreakTimeLeft = () => {
+    if (!breakEndTimeRef.current) return
+    const remaining = Math.round((breakEndTimeRef.current - Date.now()) / 1000)
+    if (remaining > 0) {
+      setBreakTimeLeft(remaining)
+    } else {
+      setBreakTimeLeft(0)
+      clearBreakTimer()
+      if (breakTimerStarted) {
+        setBreakTimerStarted(false)
+        document.title = 'Pomodoro Roulette - Break Complete!'
+        setBreakAvailable(false)
+      }
+    }
+  }
+
+  const startTaskTimer = (minutes = pomodoroDuration) => {
+    clearTaskTimer()
+    clearBreakTimer()
+    setBreakTimerStarted(false)
+    setBreakPaused(false)
+    setBreakTimeLeft(0)
     setBreakAvailable(false)
-  })
+    const durationMs = minutes * 60 * 1000
+    taskEndTimeRef.current = Date.now() + durationMs
+    setTimeLeft(Math.round(durationMs / 1000))
+    setTimerStarted(true)
+    setIsPaused(false)
+    taskIntervalRef.current = setInterval(updateTaskTimeLeft, 1000)
+  }
+
+  const pauseTaskTimer = () => {
+    if (!timerStarted || isPaused) return
+    clearTaskTimer()
+    updateTaskTimeLeft()
+    setIsPaused(true)
+  }
+
+  const resumeTaskTimer = () => {
+    if (!timerStarted || !isPaused) return
+    taskEndTimeRef.current = Date.now() + timeLeft * 1000
+    setIsPaused(false)
+    taskIntervalRef.current = setInterval(updateTaskTimeLeft, 1000)
+  }
+
+  const resetTaskTimer = () => {
+    clearTaskTimer()
+    taskEndTimeRef.current = null
+    setTimeLeft(0)
+    setTimerStarted(false)
+    setIsPaused(false)
+  }
+
+  const startBreakTimer = (minutes = breakDuration) => {
+    resetTaskTimer()
+    const durationMs = minutes * 60 * 1000
+    breakEndTimeRef.current = Date.now() + durationMs
+    setBreakTimeLeft(Math.round(durationMs / 1000))
+    setBreakTimerStarted(true)
+    setBreakPaused(false)
+    breakIntervalRef.current = setInterval(updateBreakTimeLeft, 1000)
+  }
+
+  const pauseBreakTimer = () => {
+    if (!breakTimerStarted || breakPaused) return
+    clearBreakTimer()
+    updateBreakTimeLeft()
+    setBreakPaused(true)
+  }
+
+  const resumeBreakTimer = () => {
+    if (!breakTimerStarted || !breakPaused) return
+    breakEndTimeRef.current = Date.now() + breakTimeLeft * 1000
+    setBreakPaused(false)
+    breakIntervalRef.current = setInterval(updateBreakTimeLeft, 1000)
+  }
+
+  const resetBreakTimer = () => {
+    clearBreakTimer()
+    breakEndTimeRef.current = null
+    setBreakTimeLeft(0)
+    setBreakTimerStarted(false)
+    setBreakPaused(false)
+  }
 
   const [breakAvailable, setBreakAvailable] = useState(false)
 
@@ -90,7 +186,7 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroCompl
       const remaining = duration * 60 - elapsed
       if (remaining > 0) {
         setSelectedTask(task)
-        startTimer(remaining / 60)
+        startTaskTimer(remaining / 60)
         if (onTaskSelected) onTaskSelected(task)
       } else {
         clearActivePomodoro()
@@ -111,7 +207,7 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroCompl
     const task = tasks.find(t => t.id === startTaskId)
     if (task) {
       setSelectedTask(task)
-      startTimer(pomodoroDuration)
+      startTaskTimer(pomodoroDuration)
       recordActivePomodoro(task.id)
       if (onTaskSelected) onTaskSelected(task)
     }
@@ -236,9 +332,7 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroCompl
   }
 
   const startTimerHandler = () => {
-    resetBreakTimer()
-    setBreakAvailable(false)
-    startTimer(pomodoroDuration)
+    startTaskTimer(pomodoroDuration)
     if (selectedTask) recordActivePomodoro(selectedTask.id)
   }
 
@@ -254,7 +348,7 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroCompl
       if (wasPomodoroStarted && onPomodoroComplete) {
         onPomodoroComplete(selectedTask.id)
       }
-      resetTimer()
+      resetTaskTimer()
       clearActivePomodoro()
       setSelectedTask(null)
       setBreakAvailable(true)
@@ -278,7 +372,7 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroCompl
     if (tasks.length === 0 || isSpinning) return
 
     // Clear any existing timers and reset all state
-    resetTimer()
+    resetTaskTimer()
     resetBreakTimer()
     setBreakAvailable(false)
     clearActivePomodoro()
@@ -415,8 +509,8 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroCompl
         isPaused={isPaused}
         pomodoroDuration={pomodoroDuration}
         onStartTimer={startTimerHandler}
-        onPauseTimer={pauseTimer}
-        onResumeTimer={resumeTimer}
+        onPauseTimer={pauseTaskTimer}
+        onResumeTimer={resumeTaskTimer}
         onCompleteTask={completeTask}
       />
       {(breakAvailable || breakTimerStarted) && (
