@@ -64,34 +64,52 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroCompl
     if (!soundsEnabled) return
     try {
       const audioContext = new (window.AudioContext || window.webkitAudioContext)()
-      
+
       // Create a repeating tick sound that gets slower over time
       const playTick = (startTime) => {
         const oscillator = audioContext.createOscillator()
         const gainNode = audioContext.createGain()
-        
+
         oscillator.connect(gainNode)
         gainNode.connect(audioContext.destination)
-        
+
         // Higher frequency for a clicking sound
         oscillator.frequency.setValueAtTime(800, startTime)
         oscillator.type = 'square'
-        
+
         // Short, sharp sound
         gainNode.gain.setValueAtTime(0, startTime)
         gainNode.gain.linearRampToValueAtTime(0.15, startTime + 0.005)
         gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + 0.05)
-        
+
         oscillator.start(startTime)
         oscillator.stop(startTime + 0.05)
       }
-      
+
+      const playFinalTick = (startTime) => {
+        const oscillator = audioContext.createOscillator()
+        const gainNode = audioContext.createGain()
+
+        oscillator.connect(gainNode)
+        gainNode.connect(audioContext.destination)
+
+        oscillator.frequency.setValueAtTime(600, startTime)
+        oscillator.type = 'square'
+
+        gainNode.gain.setValueAtTime(0, startTime)
+        gainNode.gain.linearRampToValueAtTime(0.3, startTime + 0.01)
+        gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + 0.2)
+
+        oscillator.start(startTime)
+        oscillator.stop(startTime + 0.2)
+      }
+
       // Create a series of ticks that slow down over 4 seconds
       const duration = 4000 // 4 seconds
       const startTime = audioContext.currentTime
       let currentTime = 0
       let tickInterval = 50 // Start with 50ms between ticks
-      
+
       const scheduleNextTick = () => {
         if (currentTime < duration) {
           playTick(startTime + currentTime / 1000)
@@ -99,14 +117,16 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroCompl
           // Gradually increase interval to slow down the ticking
           tickInterval = Math.min(tickInterval * 1.02, 200)
           setTimeout(scheduleNextTick, 1)
+        } else {
+          playFinalTick(startTime + duration / 1000)
         }
       }
-      
+
       scheduleNextTick()
-      
+
       // Store reference to stop if needed
       spinSoundRef.current = { audioContext, duration }
-      
+
     } catch (error) {
       console.log('Spinning sound not supported:', error)
     }
@@ -127,45 +147,23 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroCompl
     if (!soundsEnabled) return
     try {
       const audioContext = new (window.AudioContext || window.webkitAudioContext)()
-      
-      // Create a triumphant "tadah" fanfare sound
-      const playNote = (frequency, startTime, duration, volume = 0.2) => {
-        const oscillator = audioContext.createOscillator()
-        const gainNode = audioContext.createGain()
-        
-        oscillator.connect(gainNode)
-        gainNode.connect(audioContext.destination)
-        
-        oscillator.frequency.setValueAtTime(frequency, startTime)
-        oscillator.type = 'sawtooth' // Richer, more fanfare-like sound
-        
-        gainNode.gain.setValueAtTime(0, startTime)
-        gainNode.gain.linearRampToValueAtTime(volume, startTime + 0.02)
-        gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + duration)
-        
-        oscillator.start(startTime)
-        oscillator.stop(startTime + duration)
-      }
-      
-      // Create chord progression for "tadah" effect
-      const now = audioContext.currentTime
-      
-      // Opening chord (C major) - quick stab
-      playNote(261.63, now, 0.15, 0.15) // C4
-      playNote(329.63, now, 0.15, 0.12) // E4
-      playNote(392.00, now, 0.15, 0.12) // G4
-      
-      // Rising glissando effect
-      playNote(523.25, now + 0.2, 0.3, 0.2) // C5
-      playNote(587.33, now + 0.35, 0.3, 0.18) // D5
-      playNote(659.25, now + 0.5, 0.4, 0.22) // E5
-      
-      // Final triumphant chord (C major octave higher) - "TADAH!"
-      playNote(523.25, now + 0.8, 0.8, 0.25) // C5
-      playNote(659.25, now + 0.8, 0.8, 0.2)  // E5
-      playNote(783.99, now + 0.8, 0.8, 0.2)  // G5
-      playNote(1046.5, now + 0.8, 0.8, 0.15) // C6
-      
+
+      const oscillator = audioContext.createOscillator()
+      const gainNode = audioContext.createGain()
+
+      oscillator.connect(gainNode)
+      gainNode.connect(audioContext.destination)
+
+      oscillator.frequency.setValueAtTime(1000, audioContext.currentTime)
+      oscillator.type = 'sine'
+
+      gainNode.gain.setValueAtTime(0, audioContext.currentTime)
+      gainNode.gain.linearRampToValueAtTime(0.25, audioContext.currentTime + 0.01)
+      gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 1)
+
+      oscillator.start()
+      oscillator.stop(audioContext.currentTime + 1)
+
     } catch (error) {
       console.log('Audio not supported:', error)
       // Fallback: try to use system bell
