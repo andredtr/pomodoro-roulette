@@ -99,6 +99,32 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, startTaskId, on
     }
   }
 
+  const playTimerEndSound = () => {
+    try {
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)()
+      const oscillator = audioContext.createOscillator()
+      const gainNode = audioContext.createGain()
+
+      oscillator.connect(gainNode)
+      gainNode.connect(audioContext.destination)
+
+      const now = audioContext.currentTime
+      oscillator.type = 'triangle'
+      oscillator.frequency.setValueAtTime(880, now)
+      oscillator.frequency.exponentialRampToValueAtTime(440, now + 0.9)
+
+      gainNode.gain.setValueAtTime(0, now)
+      gainNode.gain.linearRampToValueAtTime(0.25, now + 0.1)
+      gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.9)
+
+      oscillator.start(now)
+      oscillator.stop(now + 0.9)
+      oscillator.onended = () => audioContext.close()
+    } catch (error) {
+      console.log('Audio not supported:', error)
+    }
+  }
+
   const playCompletionSound = () => {
     try {
       const audioContext = new (window.AudioContext || window.webkitAudioContext)()
@@ -192,16 +218,15 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, startTaskId, on
       if (!isPaused) {
         timerRef.current = setTimeout(() => setTimeLeft(prev => prev - 1), 1000)
       }
-    } else if (timeLeft === 0 && selectedTask) {
-      // Timer just completed - play sound only once
+    } else if (timeLeft === 0 && selectedTask && timerStarted) {
       document.title = 'Pomodoro Roulette - Timer Complete!'
-      playCompletionSound()
+      playTimerEndSound()
     } else {
       document.title = 'Pomodoro Roulette'
     }
-    
+
     return () => clearTimeout(timerRef.current)
-  }, [timeLeft, selectedTask, isPaused])
+  }, [timeLeft, selectedTask, isPaused, timerStarted])
 
   const spin = () => {
     if (tasks.length === 0 || isSpinning) return
@@ -255,6 +280,7 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, startTaskId, on
       const selected = tasks[selectedIndex]
       setSelectedTask(selected)
       onTaskSelected(selected)
+      playCompletionSound()
     }, 4000)
   }
 
