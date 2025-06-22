@@ -50,7 +50,7 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroCompl
 
   const updateTaskTimeLeft = () => {
     if (!taskEndTimeRef.current) return
-    const remaining = Math.round((taskEndTimeRef.current - Date.now()) / 1000)
+    const remaining = Math.ceil((taskEndTimeRef.current - Date.now()) / 1000)
     if (remaining > 0) {
       setTimeLeft(remaining)
     } else {
@@ -71,7 +71,7 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroCompl
 
   const updateBreakTimeLeft = () => {
     if (!breakEndTimeRef.current) return
-    const remaining = Math.round((breakEndTimeRef.current - Date.now()) / 1000)
+    const remaining = Math.ceil((breakEndTimeRef.current - Date.now()) / 1000)
     if (remaining > 0) {
       setBreakTimeLeft(remaining)
     } else {
@@ -94,7 +94,7 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroCompl
     setBreakAvailable(false)
     const durationMs = minutes * 60 * 1000
     taskEndTimeRef.current = Date.now() + durationMs
-    setTimeLeft(Math.round(durationMs / 1000))
+    setTimeLeft(Math.ceil(durationMs / 1000))
     setTimerStarted(true)
     setIsPaused(false)
     taskIntervalRef.current = setInterval(updateTaskTimeLeft, 1000)
@@ -126,7 +126,7 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroCompl
     resetTaskTimer()
     const durationMs = minutes * 60 * 1000
     breakEndTimeRef.current = Date.now() + durationMs
-    setBreakTimeLeft(Math.round(durationMs / 1000))
+    setBreakTimeLeft(Math.ceil(durationMs / 1000))
     setBreakTimerStarted(true)
     setBreakPaused(false)
     breakIntervalRef.current = setInterval(updateBreakTimeLeft, 1000)
