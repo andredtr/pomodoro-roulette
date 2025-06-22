@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import DiceIcon from './icons/DiceIcon'
 import ChevronIcon from './icons/ChevronIcon'
 
-function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted }) {
+function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, startTaskId, onStartTaskConsumed }) {
   const [isSpinning, setIsSpinning] = useState(false)
   const [selectedTask, setSelectedTask] = useState(null)
   const [timeLeft, setTimeLeft] = useState(0)
@@ -16,6 +16,18 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted }) {
     '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
     '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9'
   ]
+
+  useEffect(() => {
+    if (!startTaskId) return
+    const task = tasks.find(t => t.id === startTaskId)
+    if (task) {
+      setSelectedTask(task)
+      setTimeLeft(25 * 60)
+      setTimerStarted(true)
+      if (onTaskSelected) onTaskSelected(task)
+    }
+    if (onStartTaskConsumed) onStartTaskConsumed()
+  }, [startTaskId, tasks])
 
   const formatTime = (seconds) => {
     const m = String(Math.floor(seconds / 60)).padStart(2, '0')
@@ -230,103 +242,101 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted }) {
     }, 4000)
   }
 
-  if (tasks.length < 2) {
-    return (
-      <div className="bg-bg-card rounded-md shadow-lg p-12 flex flex-col items-center justify-center h-96">
-        <div className="text-6xl mb-4">🎯</div>
-        <h2 className="mb-2 text-center">Task Wheel</h2>
-        {tasks.length === 0 ? (
-          <p className="text-gray-400 text-center">Add some tasks to start spinning the wheel!</p>
-        ) : (
-          <p className="text-gray-400 text-center">
-            You have {tasks.length} task. Add at least one more task to spin the wheel!
-          </p>
-        )}
-      </div>
-    )
-  }
-
   return (
     <div className="bg-bg-card rounded-md shadow-lg px-6 py-12">
       <h2 className="mb-6 text-center">Task Wheel</h2>
-      
-      {/* Wheel Container */}
-      <div className="relative flex justify-center mb-6">
-        <div className="relative">
-          {/* Pointer */}
-          <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-10 text-accent-primary">
-            <ChevronIcon className="w-6 h-6" />
-          </div>
-          
-          {/* Wheel */}
-          <div
-            ref={wheelRef}
-            className="w-80 h-80 rounded-full border-4 border-gray-600 relative overflow-hidden transition-transform duration-[4000ms] ease-out"
-            style={{
-              background: `conic-gradient(${tasks.map((task, index) => {
-                const startAngle = (index * 360) / tasks.length
-                const endAngle = ((index + 1) * 360) / tasks.length
-                const color = colors[index % colors.length]
-                return `${color} ${startAngle}deg ${endAngle}deg`
-              }).join(', ')})`
-            }}
-          >
-            {/* Task Labels */}
-            {tasks.map((task, index) => {
-              const degreesPerTask = 360 / tasks.length
-              const angle = (index * degreesPerTask) + (degreesPerTask / 2)
-              const radius = 85
-              const x = Math.cos((angle - 90) * Math.PI / 180) * radius
-              const y = Math.sin((angle - 90) * Math.PI / 180) * radius
-              
-              return (
-                <div
-                  key={task.id}
-                  className="absolute text-white text-sm font-bold pointer-events-none select-none"
-                  style={{
-                    left: '50%',
-                    top: '50%',
-                    transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`,
-                    textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
-                    maxWidth: '80px',
-                    textAlign: 'center',
-                    lineHeight: '1.1',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis'
-                  }}
-                >
-                  {task.text.length > 15 ? task.text.substring(0, 15) + '...' : task.text}
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      </div>
 
-      {/* Spin Button */}
-      <div className="text-center mb-4">
-        <button
-          onClick={spin}
-          disabled={isSpinning}
-          className={`px-8 h-12 rounded-pill inline-flex items-center justify-center gap-2 font-medium transition-all ${
-            isSpinning
-              ? 'bg-gray-600 cursor-not-allowed'
-              : 'bg-gradient-to-r from-accent-success to-green-700 hover:brightness-110 active:brightness-90'
-          } text-white focus:outline-none focus:ring-2 focus:ring-accent-success`}
-        >
-          {isSpinning ? (
-            'Spinning...'
+      {tasks.length < 2 ? (
+        <div className="flex flex-col items-center justify-center mb-6 h-96">
+          <div className="text-6xl mb-4">🎯</div>
+          {tasks.length === 0 ? (
+            <p className="text-gray-400 text-center">Add some tasks to start spinning the wheel!</p>
           ) : (
-            <>
-              <DiceIcon className="w-5 h-5" />
-              <span>Spin the Wheel</span>
-            </>
+            <p className="text-gray-400 text-center">
+              You have {tasks.length} task. Add at least one more task to spin the wheel!
+            </p>
           )}
-        </button>
-      </div>
+        </div>
+      ) : (
+        <>
+          {/* Wheel Container */}
+          <div className="relative flex justify-center mb-6">
+            <div className="relative">
+              {/* Pointer */}
+              <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-10 text-accent-primary">
+                <ChevronIcon className="w-6 h-6" />
+              </div>
 
-      {/* Selected Task Display */}
+              {/* Wheel */}
+              <div
+                ref={wheelRef}
+                className="w-80 h-80 rounded-full border-4 border-gray-600 relative overflow-hidden transition-transform duration-[4000ms] ease-out"
+                style={{
+                  background: `conic-gradient(${tasks.map((task, index) => {
+                    const startAngle = (index * 360) / tasks.length
+                    const endAngle = ((index + 1) * 360) / tasks.length
+                    const color = colors[index % colors.length]
+                    return `${color} ${startAngle}deg ${endAngle}deg`
+                  }).join(', ')})`
+                }}
+              >
+                {/* Task Labels */}
+                {tasks.map((task, index) => {
+                  const degreesPerTask = 360 / tasks.length
+                  const angle = (index * degreesPerTask) + (degreesPerTask / 2)
+                  const radius = 85
+                  const x = Math.cos((angle - 90) * Math.PI / 180) * radius
+                  const y = Math.sin((angle - 90) * Math.PI / 180) * radius
+
+                  return (
+                    <div
+                      key={task.id}
+                      className="absolute text-white text-sm font-bold pointer-events-none select-none"
+                      style={{
+                        left: '50%',
+                        top: '50%',
+                        transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`,
+                        textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
+                        maxWidth: '80px',
+                        textAlign: 'center',
+                        lineHeight: '1.1',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis'
+                      }}
+                    >
+                      {task.text.length > 15 ? task.text.substring(0, 15) + '...' : task.text}
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* Spin Button */}
+          <div className="text-center mb-4">
+            <button
+              onClick={spin}
+              disabled={isSpinning}
+              className={`px-8 h-12 rounded-pill inline-flex items-center justify-center gap-2 font-medium transition-all ${
+                isSpinning
+                  ? 'bg-gray-600 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-accent-success to-green-700 hover:brightness-110 active:brightness-90'
+              } text-white focus:outline-none focus:ring-2 focus:ring-accent-success`}
+            >
+              {isSpinning ? (
+                'Spinning...'
+              ) : (
+                <>
+                  <DiceIcon className="w-5 h-5" />
+                  <span>Spin the Wheel</span>
+                </>
+              )}
+            </button>
+          </div>
+        </>
+      )}
+
       {selectedTask && (
         <div className="text-center p-4 mx-auto mt-6 w-4/5 rounded-md backdrop-blur-md bg-[rgba(34,44,60,0.45)] border-2 border-accent-success">
           <h3 className="text-sm text-white/60 mb-1">Selected task</h3>

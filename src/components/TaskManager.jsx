@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import TrashIcon from './icons/TrashIcon'
+import PlayIcon from './icons/PlayIcon'
 
-function TaskManager({ tasks, onAddTask, onDeleteTask }) {
+function TaskManager({ tasks, onAddTask, onDeleteTask, onStartTimer }) {
   const [newTask, setNewTask] = useState('')
 
   const handleSubmit = (e) => {
@@ -48,13 +49,22 @@ function TaskManager({ tasks, onAddTask, onDeleteTask }) {
                 className="flex items-center justify-between p-3 bg-bg-secondary rounded-md"
               >
                 <span className="text-text-primary truncate">{task.text}</span>
-                <button
-                  aria-label={`Delete task '${task.text}'`}
-                  onClick={() => onDeleteTask(task.id)}
-                  className="p-1 text-text-primary/70 hover:text-accent-primary"
-                >
-                  <TrashIcon className="w-5 h-5" />
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    aria-label={`Start timer for task '${task.text}'`}
+                    onClick={() => onStartTimer(task.id)}
+                    className="p-1 text-text-primary/70 hover:text-accent-success"
+                  >
+                    <PlayIcon className="w-5 h-5" />
+                  </button>
+                  <button
+                    aria-label={`Delete task '${task.text}'`}
+                    onClick={() => onDeleteTask(task.id)}
+                    className="p-1 text-text-primary/70 hover:text-accent-primary"
+                  >
+                    <TrashIcon className="w-5 h-5" />
+                  </button>
+                </div>
               </li>
             ))}
           </ul>
