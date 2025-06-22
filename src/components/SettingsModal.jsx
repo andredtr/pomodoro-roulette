@@ -1,11 +1,22 @@
 import { useState } from 'react'
 
-function SettingsModal({ initialSoundsEnabled, initialPomodoroDuration, onSave, onClose }) {
+function SettingsModal({
+  initialSoundsEnabled,
+  initialPomodoroDuration,
+  initialBreakDuration,
+  onSave,
+  onClose,
+}) {
   const [sounds, setSounds] = useState(initialSoundsEnabled)
   const [duration, setDuration] = useState(initialPomodoroDuration)
+  const [breakDuration, setBreakDuration] = useState(initialBreakDuration)
 
   const handleSave = () => {
-    onSave({ soundsEnabled: sounds, pomodoroDuration: duration })
+    onSave({
+      soundsEnabled: sounds,
+      pomodoroDuration: duration,
+      breakDuration,
+    })
     onClose()
   }
 
@@ -30,6 +41,16 @@ function SettingsModal({ initialSoundsEnabled, initialPomodoroDuration, onSave, 
             min="1"
             value={duration}
             onChange={(e) => setDuration(Number(e.target.value))}
+            className="w-full px-2 py-1 rounded bg-bg-secondary"
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block mb-1">Break Duration (minutes)</label>
+          <input
+            type="number"
+            min="1"
+            value={breakDuration}
+            onChange={(e) => setBreakDuration(Number(e.target.value))}
             className="w-full px-2 py-1 rounded bg-bg-secondary"
           />
         </div>
