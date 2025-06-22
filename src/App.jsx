@@ -98,7 +98,7 @@ function App() {
     <>
       <main className="min-h-screen bg-bg-outer">
         <div className="max-w-7xl mx-auto p-4 ">
-          <header className="text-center mb-8">
+          <header className="text-center mb-8 mt-4">
             <div className="flex justify-center items-center gap-2 mb-2">
               <TomatoIcon className="w-12 h-12" />
               <h1 className="text-5xl font-semibold tracking-tight">Pomodoro Roulette</h1>
