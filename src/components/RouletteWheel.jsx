@@ -129,6 +129,9 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroCompl
     try {
       const audioContext = new (window.AudioContext || window.webkitAudioContext)()
 
+      // iOS requires the context to be resumed after a user interaction
+      const resumePromise = audioContext.resume?.() || Promise.resolve()
+
       // Create a repeating tick sound that gets slower over time
       const playTick = (startTime) => {
         const oscillator = audioContext.createOscillator()
@@ -186,7 +189,7 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroCompl
         }
       }
 
-      scheduleNextTick()
+      resumePromise.then(scheduleNextTick)
 
       // Store reference to stop if needed
       spinSoundRef.current = { audioContext, duration }
@@ -212,6 +215,9 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroCompl
     try {
       const audioContext = new (window.AudioContext || window.webkitAudioContext)()
 
+      // Ensure the context is running (important for iOS)
+      const resumePromise = audioContext.resume?.() || Promise.resolve()
+
       const oscillator = audioContext.createOscillator()
       const gainNode = audioContext.createGain()
 
@@ -225,8 +231,10 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroCompl
       gainNode.gain.linearRampToValueAtTime(0.25, audioContext.currentTime + 0.01)
       gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 1)
 
-      oscillator.start()
-      oscillator.stop(audioContext.currentTime + 1)
+      resumePromise.then(() => {
+        oscillator.start()
+        oscillator.stop(audioContext.currentTime + 1)
+      })
 
     } catch (error) {
       console.log('Audio not supported:', error)
