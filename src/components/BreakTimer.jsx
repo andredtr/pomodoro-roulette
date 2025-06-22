@@ -38,7 +38,7 @@ function BreakTimer({
       <div className="mt-4 flex justify-center space-x-4">
         <button
           onClick={isPaused ? onResumeBreak : onPauseBreak}
-          className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition-colors"
+          className="px-4 py-2 bg-purple-200 text-white rounded hover:bg-purple-400 transition-colors"
         >
           {isPaused ? 'Resume' : 'Pause'}
         </button>
