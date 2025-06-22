@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from 'react'
 import DiceIcon from './icons/DiceIcon'
 import ChevronIcon from './icons/ChevronIcon'
+import SettingsIcon from './icons/SettingsIcon'
+import SettingsModal from './SettingsModal'
 
 function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, startTaskId, onStartTaskConsumed }) {
   const [isSpinning, setIsSpinning] = useState(false)
@@ -13,6 +15,36 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, startTaskId, on
   const spinSoundRef = useRef(null)
   const rotationRef = useRef(0)
 
+  const [showSettings, setShowSettings] = useState(false)
+  const [soundsEnabled, setSoundsEnabled] = useState(true)
+  const [pomodoroDuration, setPomodoroDuration] = useState(25)
+
+  // Load settings from localStorage on mount
+  useEffect(() => {
+    const stored = localStorage.getItem('rouletteSettings')
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored)
+        if (typeof parsed.soundsEnabled === 'boolean') {
+          setSoundsEnabled(parsed.soundsEnabled)
+        }
+        if (typeof parsed.pomodoroDuration === 'number') {
+          setPomodoroDuration(parsed.pomodoroDuration)
+        }
+      } catch {
+        // ignore parse errors
+      }
+    }
+  }, [])
+
+  // Persist settings whenever they change
+  useEffect(() => {
+    localStorage.setItem('rouletteSettings', JSON.stringify({
+      soundsEnabled,
+      pomodoroDuration
+    }))
+  }, [soundsEnabled, pomodoroDuration])
+
   const colors = [
     '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
     '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9'
@@ -23,13 +55,13 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, startTaskId, on
     const task = tasks.find(t => t.id === startTaskId)
     if (task) {
       setSelectedTask(task)
-      setTimeLeft(25 * 60)
+      setTimeLeft(pomodoroDuration * 60)
       setTimerStarted(true)
       setIsPaused(false)
       if (onTaskSelected) onTaskSelected(task)
     }
     if (onStartTaskConsumed) onStartTaskConsumed()
-  }, [startTaskId, tasks])
+  }, [startTaskId, tasks, pomodoroDuration])
 
   const formatTime = (seconds) => {
     const m = String(Math.floor(seconds / 60)).padStart(2, '0')
@@ -38,6 +70,7 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, startTaskId, on
   }
 
   const playSpinningSound = () => {
+    if (!soundsEnabled) return
     try {
       const audioContext = new (window.AudioContext || window.webkitAudioContext)()
       
@@ -100,6 +133,7 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, startTaskId, on
   }
 
   const playCompletionSound = () => {
+    if (!soundsEnabled) return
     try {
       const audioContext = new (window.AudioContext || window.webkitAudioContext)()
       
@@ -149,7 +183,7 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, startTaskId, on
   }
 
   const startTimer = () => {
-    setTimeLeft(25 * 60)
+    setTimeLeft(pomodoroDuration * 60)
     setTimerStarted(true)
     setIsPaused(false)
   }
@@ -259,7 +293,15 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, startTaskId, on
   }
 
   return (
-    <div className="bg-bg-card rounded-md shadow-lg px-6 py-12">
+    <>
+    <div className="bg-bg-card rounded-md shadow-lg px-6 py-12 relative">
+      <button
+        aria-label="Settings"
+        onClick={() => setShowSettings(true)}
+        className="absolute top-4 right-4 text-white hover:text-accent-info"
+      >
+        <SettingsIcon className="w-6 h-6" />
+      </button>
       <h2 className="mb-6 text-center">Task Wheel</h2>
 
       {tasks.length < 2 ? (
@@ -359,7 +401,7 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, startTaskId, on
           <p className="text-xl font-semibold mb-1">{selectedTask.text}</p>
           {timeLeft === 0 ? (
             <>
-              <p className="text-sm text-green-300 mt-2">Time for a 25-minute Pomodoro session!</p>
+              <p className="text-sm text-green-300 mt-2">Time for a {pomodoroDuration}-minute Pomodoro session!</p>
               <div className="mt-4 flex justify-center space-x-4">
                 <button
                   onClick={startTimer}
@@ -399,6 +441,18 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, startTaskId, on
         </div>
       )}
     </div>
+    {showSettings && (
+      <SettingsModal
+        initialSoundsEnabled={soundsEnabled}
+        initialPomodoroDuration={pomodoroDuration}
+        onSave={({ soundsEnabled: se, pomodoroDuration: pd }) => {
+          setSoundsEnabled(se)
+          setPomodoroDuration(pd)
+        }}
+        onClose={() => setShowSettings(false)}
+      />
+    )}
+    </>
   )
 }
 
