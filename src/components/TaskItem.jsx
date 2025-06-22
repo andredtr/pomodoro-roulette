@@ -25,7 +25,10 @@ function TaskItem({
       onDragEnd={onDragEnd}
       className="flex items-center justify-between p-3 bg-bg-secondary rounded-md cursor-move"
     >
-      <span className="text-text-primary truncate">{task.text}</span>
+      <div className="flex items-center gap-2 flex-1 min-w-0">
+        <span className="text-text-primary truncate">{task.text}</span>
+        <span className="text-accent-success text-sm whitespace-nowrap">{task.pomodoros} 🍅</span>
+      </div>
       <div className="flex items-center gap-2">
         <button
           aria-label={`Start timer for task '${task.text}'`}
