@@ -48,7 +48,12 @@ function TaskManager({ tasks, onAddTask, onDeleteTask, onStartTimer }) {
                 key={task.id}
                 className="flex items-center justify-between p-3 bg-bg-secondary rounded-md"
               >
-                <span className="text-text-primary truncate">{task.text}</span>
+                <span className="text-text-primary truncate" title={task.text}>
+                  {task.text}
+                </span>
+                <span className="text-sm text-white/70 mr-2 whitespace-nowrap">
+                  {task.pomodoros} 🍅
+                </span>
                 <div className="flex items-center gap-2">
                   <button
                     aria-label={`Start timer for task '${task.text}'`}

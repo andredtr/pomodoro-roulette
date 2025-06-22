@@ -1,12 +1,18 @@
 import { useState, useEffect } from "react";
 import TaskManager from "./components/TaskManager";
 import RouletteWheel from "./components/RouletteWheel";
+import Analytics from "./components/Analytics";
 import TomatoIcon from "./components/icons/TomatoIcon";
 
 function App() {
   const [tasks, setTasks] = useState(() => {
     const stored = localStorage.getItem('tasks');
-    return stored ? JSON.parse(stored) : [];
+    const parsed = stored ? JSON.parse(stored) : [];
+    return parsed.map(t => ({ ...t, pomodoros: t.pomodoros || 0 }));
+  });
+  const [analytics, setAnalytics] = useState(() => {
+    const stored = localStorage.getItem('analytics');
+    return stored ? JSON.parse(stored) : { completedTasks: [], dailyPomodoros: {} };
   });
   const [selectedTask, setSelectedTask] = useState(null);
   const [startTaskId, setStartTaskId] = useState(null);
@@ -15,11 +21,16 @@ function App() {
     localStorage.setItem('tasks', JSON.stringify(tasks));
   }, [tasks]);
 
+  useEffect(() => {
+    localStorage.setItem('analytics', JSON.stringify(analytics));
+  }, [analytics]);
+
   const addTask = (taskText) => {
     const newTask = {
       id: Date.now(),
       text: taskText,
       createdAt: new Date(),
+      pomodoros: 0,
     };
     setTasks((prev) => [...prev, newTask]);
   };
@@ -40,7 +51,28 @@ function App() {
     setStartTaskId(taskId);
   };
 
+  const handlePomodoroComplete = (taskId) => {
+    setTasks(prev => prev.map(t => t.id === taskId ? { ...t, pomodoros: (t.pomodoros || 0) + 1 } : t));
+    const today = new Date().toISOString().slice(0,10);
+    setAnalytics(prev => ({
+      ...prev,
+      dailyPomodoros: { ...prev.dailyPomodoros, [today]: (prev.dailyPomodoros[today] || 0) + 1 }
+    }));
+  };
+
   const handleTaskCompleted = (taskId) => {
+    const task = tasks.find(t => t.id === taskId);
+    if (task) {
+      setAnalytics(prev => ({
+        ...prev,
+        completedTasks: [...prev.completedTasks, {
+          id: task.id,
+          text: task.text,
+          pomodoros: task.pomodoros,
+          completedAt: new Date(),
+        }]
+      }));
+    }
     deleteTask(taskId);
   };
 
@@ -61,13 +93,14 @@ function App() {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
            {/* Left Side - Task Manager */}
-           <div className="order-2 lg:order-1 lg:col-span-4">
+           <div className="order-2 lg:order-1 lg:col-span-4 space-y-6">
            <TaskManager
               tasks={tasks}
               onAddTask={addTask}
               onDeleteTask={deleteTask}
               onStartTimer={startTaskTimer}
             />
+            <Analytics analytics={analytics} />
            </div>
 
            {/* Right Side - Roulette Wheel */}
@@ -76,11 +109,12 @@ function App() {
                tasks={tasks}
                onTaskSelected={handleTaskSelected}
                onTaskCompleted={handleTaskCompleted}
+               onPomodoroComplete={handlePomodoroComplete}
                startTaskId={startTaskId}
                onStartTaskConsumed={() => setStartTaskId(null)}
              />
-           </div>
-         </div>
+          </div>
+        </div>
         </div>
       </main>
     </>
