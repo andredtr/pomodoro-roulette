@@ -4,6 +4,7 @@ import TaskManager from "./components/TaskManager";
 import RouletteWheel from "./components/RouletteWheel";
 import AnalyticsPanel from "./components/AnalyticsPanel";
 import TomatoIcon from "./components/icons/TomatoIcon";
+import Footer from "./layout/Footer";
 
 function App() {
   const currentDate = new Date().toISOString().split('T')[0];
@@ -117,6 +118,7 @@ function App() {
          </div>
         </div>
       </main>
+      <Footer />
     </>
   );
 }
