@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import TrashIcon from './icons/TrashIcon'
-import PlayIcon from './icons/PlayIcon'
+import TaskItem from './TaskItem'
 
 function TaskManager({ tasks, onAddTask, onDeleteTask, onStartTimer, onReorderTasks }) {
   const [newTask, setNewTask] = useState('')
@@ -64,33 +63,16 @@ function TaskManager({ tasks, onAddTask, onDeleteTask, onStartTimer, onReorderTa
         ) : (
           <ul className="space-y-2 max-h-[400px] overflow-y-auto">
             {tasks.map((task, index) => (
-              <li
+              <TaskItem
                 key={task.id}
-                draggable
+                task={task}
+                onStartTimer={onStartTimer}
+                onDeleteTask={onDeleteTask}
                 onDragStart={handleDragStart(index)}
                 onDragOver={handleDragOver}
                 onDrop={handleDrop(index)}
                 onDragEnd={handleDragEnd}
-                className="flex items-center justify-between p-3 bg-bg-secondary rounded-md cursor-move"
-              >
-                <span className="text-text-primary truncate">{task.text}</span>
-                <div className="flex items-center gap-2">
-                  <button
-                    aria-label={`Start timer for task '${task.text}'`}
-                    onClick={() => onStartTimer(task.id)}
-                    className="p-1 text-text-primary/70 hover:text-accent-success"
-                  >
-                    <PlayIcon className="w-5 h-5" />
-                  </button>
-                  <button
-                    aria-label={`Delete task '${task.text}'`}
-                    onClick={() => onDeleteTask(task.id)}
-                    className="p-1 text-text-primary/70 hover:text-accent-primary"
-                  >
-                    <TrashIcon className="w-5 h-5" />
-                  </button>
-                </div>
-              </li>
+              />
             ))}
           </ul>
         )}
