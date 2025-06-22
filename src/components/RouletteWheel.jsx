@@ -7,6 +7,7 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, startTaskId, on
   const [selectedTask, setSelectedTask] = useState(null)
   const [timeLeft, setTimeLeft] = useState(0)
   const [timerStarted, setTimerStarted] = useState(false)
+  const [isPaused, setIsPaused] = useState(false)
   const wheelRef = useRef(null)
   const timerRef = useRef(null)
   const spinSoundRef = useRef(null)
@@ -24,6 +25,7 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, startTaskId, on
       setSelectedTask(task)
       setTimeLeft(25 * 60)
       setTimerStarted(true)
+      setIsPaused(false)
       if (onTaskSelected) onTaskSelected(task)
     }
     if (onStartTaskConsumed) onStartTaskConsumed()
@@ -149,6 +151,16 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, startTaskId, on
   const startTimer = () => {
     setTimeLeft(25 * 60)
     setTimerStarted(true)
+    setIsPaused(false)
+  }
+
+  const pauseTimer = () => {
+    clearTimeout(timerRef.current)
+    setIsPaused(true)
+  }
+
+  const resumeTimer = () => {
+    setIsPaused(false)
   }
 
   const completeTask = () => {
@@ -161,6 +173,7 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, startTaskId, on
       setTimeLeft(0)
       setSelectedTask(null)
       setTimerStarted(false)
+      setIsPaused(false)
       clearTimeout(timerRef.current)
       
       // Call parent callback to remove the task
@@ -173,10 +186,12 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, startTaskId, on
   useEffect(() => {
     // Clear any existing timeout first
     clearTimeout(timerRef.current)
-    
+
     if (timeLeft > 0 && selectedTask) {
       document.title = `${formatTime(timeLeft)} Pomodoro Roulette`
-      timerRef.current = setTimeout(() => setTimeLeft(prev => prev - 1), 1000)
+      if (!isPaused) {
+        timerRef.current = setTimeout(() => setTimeLeft(prev => prev - 1), 1000)
+      }
     } else if (timeLeft === 0 && selectedTask) {
       // Timer just completed - play sound only once
       document.title = 'Pomodoro Roulette - Timer Complete!'
@@ -186,7 +201,7 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, startTaskId, on
     }
     
     return () => clearTimeout(timerRef.current)
-  }, [timeLeft, selectedTask])
+  }, [timeLeft, selectedTask, isPaused])
 
   const spin = () => {
     if (tasks.length === 0 || isSpinning) return
@@ -198,6 +213,7 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, startTaskId, on
     setSelectedTask(null)
     setTimeLeft(0)
     setTimerStarted(false)
+    setIsPaused(false)
     document.title = 'Pomodoro Roulette'
 
     // Start spinning sound
@@ -364,7 +380,13 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, startTaskId, on
           ) : (
             <>
               <p className="text-2xl font-bold text-green-300 mt-2">{formatTime(timeLeft)}</p>
-              <div className="mt-4 flex justify-center">
+              <div className="mt-4 flex justify-center space-x-4">
+                <button
+                  onClick={isPaused ? resumeTimer : pauseTimer}
+                  className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition-colors"
+                >
+                  {isPaused ? 'Resume' : 'Pause'}
+                </button>
                 <button
                   onClick={completeTask}
                   className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
