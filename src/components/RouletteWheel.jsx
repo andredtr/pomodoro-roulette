@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import DiceIcon from './icons/DiceIcon'
 import ChevronIcon from './icons/ChevronIcon'
 import SettingsIcon from './icons/SettingsIcon'
+import SettingsModal from './SettingsModal'
 
 function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, startTaskId, onStartTaskConsumed }) {
   const [isSpinning, setIsSpinning] = useState(false)
@@ -419,39 +420,15 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, startTaskId, on
       )}
     </div>
     {showSettings && (
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-20">
-        <div className="bg-bg-card p-6 rounded-md w-80">
-          <h2 className="text-xl mb-4">Settings</h2>
-          <div className="mb-4">
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={soundsEnabled}
-                onChange={(e) => setSoundsEnabled(e.target.checked)}
-              />
-              <span>Enable Sounds</span>
-            </label>
-          </div>
-          <div className="mb-4">
-            <label className="block mb-1">Pomodoro Duration (minutes)</label>
-            <input
-              type="number"
-              min="1"
-              value={pomodoroDuration}
-              onChange={(e) => setPomodoroDuration(Number(e.target.value))}
-              className="w-full px-2 py-1 rounded bg-bg-secondary"
-            />
-          </div>
-          <div className="text-right">
-            <button
-              onClick={() => setShowSettings(false)}
-              className="px-4 py-2 bg-accent-primary text-white rounded hover:bg-red-600"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      </div>
+      <SettingsModal
+        initialSoundsEnabled={soundsEnabled}
+        initialPomodoroDuration={pomodoroDuration}
+        onSave={({ soundsEnabled: se, pomodoroDuration: pd }) => {
+          setSoundsEnabled(se)
+          setPomodoroDuration(pd)
+        }}
+        onClose={() => setShowSettings(false)}
+      />
     )}
     </>
   )
