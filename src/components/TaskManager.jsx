@@ -2,8 +2,9 @@ import { useState } from 'react'
 import TrashIcon from './icons/TrashIcon'
 import PlayIcon from './icons/PlayIcon'
 
-function TaskManager({ tasks, onAddTask, onDeleteTask, onStartTimer }) {
+function TaskManager({ tasks, onAddTask, onDeleteTask, onStartTimer, onReorderTasks }) {
   const [newTask, setNewTask] = useState('')
+  const [dragIndex, setDragIndex] = useState(null)
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -11,6 +12,25 @@ function TaskManager({ tasks, onAddTask, onDeleteTask, onStartTimer }) {
       onAddTask(newTask.trim())
       setNewTask('')
     }
+  }
+
+  const handleDragStart = (index) => () => {
+    setDragIndex(index)
+  }
+
+  const handleDragOver = (e) => {
+    e.preventDefault()
+  }
+
+  const handleDrop = (index) => (e) => {
+    e.preventDefault()
+    if (dragIndex === null || dragIndex === index) return
+    onReorderTasks(dragIndex, index)
+    setDragIndex(null)
+  }
+
+  const handleDragEnd = () => {
+    setDragIndex(null)
   }
 
   return (
@@ -43,10 +63,15 @@ function TaskManager({ tasks, onAddTask, onDeleteTask, onStartTimer }) {
           <p className="text-gray-400 italic">No tasks yet. Add some tasks to get started!</p>
         ) : (
           <ul className="space-y-2 max-h-[400px] overflow-y-auto">
-            {tasks.map((task) => (
+            {tasks.map((task, index) => (
               <li
                 key={task.id}
-                className="flex items-center justify-between p-3 bg-bg-secondary rounded-md"
+                draggable
+                onDragStart={handleDragStart(index)}
+                onDragOver={handleDragOver}
+                onDrop={handleDrop(index)}
+                onDragEnd={handleDragEnd}
+                className="flex items-center justify-between p-3 bg-bg-secondary rounded-md cursor-move"
               >
                 <span className="text-text-primary truncate">{task.text}</span>
                 <div className="flex items-center gap-2">

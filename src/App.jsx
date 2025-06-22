@@ -44,6 +44,15 @@ function App() {
     deleteTask(taskId);
   };
 
+  const reorderTasks = (from, to) => {
+    setTasks((prev) => {
+      const updated = [...prev];
+      const [moved] = updated.splice(from, 1);
+      updated.splice(to, 0, moved);
+      return updated;
+    });
+  };
+
   return (
     <>
       <main className="min-h-screen bg-bg-outer">
@@ -67,6 +76,7 @@ function App() {
               onAddTask={addTask}
               onDeleteTask={deleteTask}
               onStartTimer={startTaskTimer}
+              onReorderTasks={reorderTasks}
             />
            </div>
 
