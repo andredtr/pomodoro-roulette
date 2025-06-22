@@ -16,6 +16,20 @@ export default function TomatoIcon({className}) {
         strokeLinecap="round"
         className="stroke-accent-success"
       />
+      <path
+        d="M12 13l-3-2"
+        stroke="white"
+        strokeWidth="2"
+        strokeLinecap="round"
+        className="stroke-white"
+      />
+      <path
+        d="M12 13l3-2"
+        stroke="white"
+        strokeWidth="2"
+        strokeLinecap="round"
+        className="stroke-white"
+      />
     </svg>
   )
 }
