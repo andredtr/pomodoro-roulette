@@ -6,11 +6,14 @@ export default function usePomodoroTimer(durationMinutes, onComplete) {
   const [isPaused, setIsPaused] = useState(false)
 
   const intervalRef = useRef(null)
+  const timeoutRef = useRef(null)
   const endTimeRef = useRef(null)
 
   const clearTimer = () => {
     clearInterval(intervalRef.current)
+    clearTimeout(timeoutRef.current)
     intervalRef.current = null
+    timeoutRef.current = null
   }
 
   const updateTimeLeft = () => {
@@ -36,6 +39,9 @@ export default function usePomodoroTimer(durationMinutes, onComplete) {
     setTimerStarted(true)
     setIsPaused(false)
     intervalRef.current = setInterval(updateTimeLeft, 1000)
+    timeoutRef.current = setTimeout(() => {
+      updateTimeLeft()
+    }, durationMs + 100)
   }
 
   const pauseTimer = () => {
@@ -50,6 +56,9 @@ export default function usePomodoroTimer(durationMinutes, onComplete) {
     endTimeRef.current = Date.now() + timeLeft * 1000
     setIsPaused(false)
     intervalRef.current = setInterval(updateTimeLeft, 1000)
+    timeoutRef.current = setTimeout(() => {
+      updateTimeLeft()
+    }, timeLeft * 1000 + 100)
   }
 
   const reset = () => {
