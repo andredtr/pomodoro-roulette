@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import DiceIcon from './icons/DiceIcon'
 import ChevronIcon from './icons/ChevronIcon'
 
-function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted }) {
+function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, startTask, onStartHandled }) {
   const [isSpinning, setIsSpinning] = useState(false)
   const [selectedTask, setSelectedTask] = useState(null)
   const [timeLeft, setTimeLeft] = useState(0)
@@ -157,6 +157,17 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted }) {
       }
     }
   }
+
+  useEffect(() => {
+    if (startTask) {
+      setSelectedTask(startTask)
+      setTimeLeft(25 * 60)
+      setTimerStarted(true)
+      onTaskSelected?.(startTask)
+      onStartHandled?.()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [startTask?.id])
 
   useEffect(() => {
     // Clear any existing timeout first

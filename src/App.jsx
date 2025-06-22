@@ -9,6 +9,7 @@ function App() {
     return stored ? JSON.parse(stored) : [];
   });
   const [selectedTask, setSelectedTask] = useState(null);
+  const [taskToStart, setTaskToStart] = useState(null);
 
   useEffect(() => {
     localStorage.setItem('tasks', JSON.stringify(tasks));
@@ -35,8 +36,17 @@ function App() {
     setSelectedTask(task);
   };
 
+  const startTaskTimer = (task) => {
+    setSelectedTask(task);
+    setTaskToStart(task);
+  };
+
   const handleTaskCompleted = (taskId) => {
     deleteTask(taskId);
+  };
+
+  const handleStartHandled = () => {
+    setTaskToStart(null);
   };
 
   return (
@@ -61,6 +71,7 @@ function App() {
                tasks={tasks}
                onAddTask={addTask}
                onDeleteTask={deleteTask}
+               onStartTimer={startTaskTimer}
              />
            </div>
 
@@ -70,6 +81,8 @@ function App() {
                tasks={tasks}
                onTaskSelected={handleTaskSelected}
                onTaskCompleted={handleTaskCompleted}
+               startTask={taskToStart}
+               onStartHandled={handleStartHandled}
              />
            </div>
          </div>
