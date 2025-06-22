@@ -9,6 +9,7 @@ function App() {
     return stored ? JSON.parse(stored) : [];
   });
   const [selectedTask, setSelectedTask] = useState(null);
+  const [startTaskId, setStartTaskId] = useState(null);
 
   useEffect(() => {
     localStorage.setItem('tasks', JSON.stringify(tasks));
@@ -35,6 +36,10 @@ function App() {
     setSelectedTask(task);
   };
 
+  const startTaskTimer = (taskId) => {
+    setStartTaskId(taskId);
+  };
+
   const handleTaskCompleted = (taskId) => {
     deleteTask(taskId);
   };
@@ -57,11 +62,12 @@ function App() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
            {/* Left Side - Task Manager */}
            <div className="order-2 lg:order-1 lg:col-span-4">
-             <TaskManager
-               tasks={tasks}
-               onAddTask={addTask}
-               onDeleteTask={deleteTask}
-             />
+           <TaskManager
+              tasks={tasks}
+              onAddTask={addTask}
+              onDeleteTask={deleteTask}
+              onStartTimer={startTaskTimer}
+            />
            </div>
 
            {/* Right Side - Roulette Wheel */}
@@ -70,6 +76,8 @@ function App() {
                tasks={tasks}
                onTaskSelected={handleTaskSelected}
                onTaskCompleted={handleTaskCompleted}
+               startTaskId={startTaskId}
+               onStartTaskConsumed={() => setStartTaskId(null)}
              />
            </div>
          </div>
