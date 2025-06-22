@@ -278,8 +278,16 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroCompl
           <div className="relative flex justify-center mb-6">
             <div className="relative">
               {/* Pointer */}
-              <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-10 text-accent-primary">
-                <ChevronIcon className="w-6 h-6" />
+              <div 
+                className={`absolute -top-5 left-1/2 z-10 text-accent-primary transition-all duration-200 ${
+                  isSpinning ? 'animate-paper-flutter' : 'animate-paper-idle'
+                }`}
+                style={{
+                  filter: 'drop-shadow(2px 2px 6px rgba(0,0,0,0.6)) drop-shadow(0px 0px 2px rgba(0,0,0,0.8))',
+                  transform: 'translateX(-50%)'
+                }}
+              >
+                <ChevronIcon className="w-10 h-10 stroke-2" style={{ stroke: 'rgba(0,0,0,0.4)', strokeWidth: '1px' }} />
               </div>
 
               {/* Wheel */}
