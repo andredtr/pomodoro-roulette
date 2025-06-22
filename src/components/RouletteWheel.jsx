@@ -6,6 +6,7 @@ import SettingsModal from './SettingsModal'
 import PomodoroTimer from './PomodoroTimer'
 import usePomodoroTimer from '../hooks/usePomodoroTimer'
 import useSettings from '../hooks/useSettings'
+import WheelCanvas from './WheelCanvas'
 
 function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroComplete, startTaskId, onStartTaskConsumed }) {
   const [isSpinning, setIsSpinning] = useState(false)
@@ -291,47 +292,8 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroCompl
               </div>
 
               {/* Wheel */}
-              <div
-                ref={wheelRef}
-                className="w-80 h-80 rounded-full border-4 border-gray-600 relative overflow-hidden transition-transform duration-[4000ms] ease-out"
-                style={{
-                  background: `conic-gradient(${tasks.map((task, index) => {
-                    const startAngle = (index * 360) / tasks.length
-                    const endAngle = ((index + 1) * 360) / tasks.length
-                    const color = colors[index % colors.length]
-                    return `${color} ${startAngle}deg ${endAngle}deg`
-                  }).join(', ')})`
-                }}
-              >
-                {/* Task Labels */}
-                {tasks.map((task, index) => {
-                  const degreesPerTask = 360 / tasks.length
-                  const angle = (index * degreesPerTask) + (degreesPerTask / 2)
-                  const radius = 85
-                  const x = Math.cos((angle - 90) * Math.PI / 180) * radius
-                  const y = Math.sin((angle - 90) * Math.PI / 180) * radius
-
-                  return (
-                    <div
-                      key={task.id}
-                      className="absolute text-white text-sm font-bold pointer-events-none select-none"
-                      style={{
-                        left: '50%',
-                        top: '50%',
-                        transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`,
-                        textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
-                        maxWidth: '80px',
-                        textAlign: 'center',
-                        lineHeight: '1.1',
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis'
-                      }}
-                    >
-                      {task.text.length > 15 ? task.text.substring(0, 15) + '...' : task.text}
-                    </div>
-                  )
-                })}
+              <div ref={wheelRef} className="transition-transform duration-[4000ms] ease-out">
+                <WheelCanvas tasks={tasks} colors={colors} />
               </div>
             </div>
           </div>
