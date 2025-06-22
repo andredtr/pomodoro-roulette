@@ -33,8 +33,8 @@ function BreakTimer({
   }
 
   return (
-    <div className="text-center p-4 mx-auto mt-6 w-4/5 rounded-md backdrop-blur-md bg-[rgba(34,44,60,0.45)] border-2 border-accent-success">
-      <p className="text-2xl font-bold text-green-300 mt-2">{formatTime(timeLeft)}</p>
+    <div className="text-center p-4 mx-auto mt-6 w-4/5 rounded-md backdrop-blur-md bg-[rgba(34,44,60,0.45)] border-2 border-purple-300">
+      <p className="text-2xl font-bold text-purple-300 mt-2">{formatTime(timeLeft)}</p>
       <div className="mt-4 flex justify-center space-x-4">
         <button
           onClick={isPaused ? onResumeBreak : onPauseBreak}
@@ -44,7 +44,7 @@ function BreakTimer({
         </button>
         <button
           onClick={onEndBreak}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+          className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 transition-colors"
         >
           End Break
         </button>
