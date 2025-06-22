@@ -3,47 +3,40 @@ import DiceIcon from './icons/DiceIcon'
 import ChevronIcon from './icons/ChevronIcon'
 import SettingsIcon from './icons/SettingsIcon'
 import SettingsModal from './SettingsModal'
+import PomodoroTimer from './PomodoroTimer'
+import usePomodoroTimer from '../hooks/usePomodoroTimer'
+import useSettings from '../hooks/useSettings'
 
 function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroComplete, startTaskId, onStartTaskConsumed }) {
   const [isSpinning, setIsSpinning] = useState(false)
   const [selectedTask, setSelectedTask] = useState(null)
-  const [timeLeft, setTimeLeft] = useState(0)
-  const [timerStarted, setTimerStarted] = useState(false)
-  const [isPaused, setIsPaused] = useState(false)
   const wheelRef = useRef(null)
-  const timerRef = useRef(null)
   const spinSoundRef = useRef(null)
   const rotationRef = useRef(0)
 
   const [showSettings, setShowSettings] = useState(false)
-  const [soundsEnabled, setSoundsEnabled] = useState(true)
-  const [pomodoroDuration, setPomodoroDuration] = useState(25)
+  const {
+    soundsEnabled,
+    pomodoroDuration,
+    setSoundsEnabled,
+    setPomodoroDuration,
+  } = useSettings()
 
-  // Load settings from localStorage on mount
-  useEffect(() => {
-    const stored = localStorage.getItem('rouletteSettings')
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored)
-        if (typeof parsed.soundsEnabled === 'boolean') {
-          setSoundsEnabled(parsed.soundsEnabled)
-        }
-        if (typeof parsed.pomodoroDuration === 'number') {
-          setPomodoroDuration(parsed.pomodoroDuration)
-        }
-      } catch {
-        // ignore parse errors
-      }
+  const {
+    timeLeft,
+    timerStarted,
+    isPaused,
+    startTimer,
+    pauseTimer,
+    resumeTimer,
+    reset: resetTimer,
+  } = usePomodoroTimer(pomodoroDuration, () => {
+    document.title = 'Pomodoro Roulette - Timer Complete!'
+    playCompletionSound()
+    if (onPomodoroComplete && selectedTask) {
+      onPomodoroComplete(selectedTask.id)
     }
-  }, [])
-
-  // Persist settings whenever they change
-  useEffect(() => {
-    localStorage.setItem('rouletteSettings', JSON.stringify({
-      soundsEnabled,
-      pomodoroDuration
-    }))
-  }, [soundsEnabled, pomodoroDuration])
+  })
 
   const colors = [
     '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
@@ -55,9 +48,7 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroCompl
     const task = tasks.find(t => t.id === startTaskId)
     if (task) {
       setSelectedTask(task)
-      setTimeLeft(pomodoroDuration * 60)
-      setTimerStarted(true)
-      setIsPaused(false)
+      startTimer(pomodoroDuration)
       if (onTaskSelected) onTaskSelected(task)
     }
     if (onStartTaskConsumed) onStartTaskConsumed()
@@ -182,35 +173,18 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroCompl
     }
   }
 
-  const startTimer = () => {
-    setTimeLeft(pomodoroDuration * 60)
-    setTimerStarted(true)
-    setIsPaused(false)
-  }
-
-  const pauseTimer = () => {
-    clearTimeout(timerRef.current)
-    setIsPaused(true)
-  }
-
-  const resumeTimer = () => {
-    setIsPaused(false)
-  }
+  const startTimerHandler = () => startTimer(pomodoroDuration)
 
   const completeTask = () => {
     if (!selectedTask) return
-    
-    const confirmed = window.confirm(`Are you sure you want to complete the task: "${selectedTask.text}"?\n\nThis will remove the task from your list and reset the timer.`)
-    
+
+    const confirmed = window.confirm(
+      `Are you sure you want to complete the task: "${selectedTask.text}"?\n\nThis will remove the task from your list and reset the timer.`,
+    )
+
     if (confirmed) {
-      // Reset timer and clear selected task
-      setTimeLeft(0)
+      resetTimer()
       setSelectedTask(null)
-      setTimerStarted(false)
-      setIsPaused(false)
-      clearTimeout(timerRef.current)
-      
-      // Call parent callback to remove the task
       if (onTaskCompleted) {
         onTaskCompleted(selectedTask.id)
       }
@@ -218,39 +192,21 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroCompl
   }
 
   useEffect(() => {
-    // Clear any existing timeout first
-    clearTimeout(timerRef.current)
-
     if (timeLeft > 0 && selectedTask) {
       document.title = `${formatTime(timeLeft)} Pomodoro Roulette`
-      if (!isPaused) {
-        timerRef.current = setTimeout(() => setTimeLeft(prev => prev - 1), 1000)
-      }
-    } else if (timeLeft === 0 && selectedTask) {
-      // Timer just completed - play sound only once
-      document.title = 'Pomodoro Roulette - Timer Complete!'
-      playCompletionSound()
-      if (timerStarted && onPomodoroComplete) {
-        onPomodoroComplete(selectedTask.id)
-      }
-    } else {
+    } else if (timeLeft === 0 && !timerStarted) {
       document.title = 'Pomodoro Roulette'
     }
-    
-    return () => clearTimeout(timerRef.current)
-  }, [timeLeft, selectedTask, isPaused])
+  }, [timeLeft, selectedTask, timerStarted])
 
   const spin = () => {
     if (tasks.length === 0 || isSpinning) return
 
     // Clear any existing timers and reset all state
-    clearTimeout(timerRef.current)
+    resetTimer()
     stopSpinningSound() // Stop any existing spinning sound
     setIsSpinning(true)
     setSelectedTask(null)
-    setTimeLeft(0)
-    setTimerStarted(false)
-    setIsPaused(false)
     document.title = 'Pomodoro Roulette'
 
     // Start spinning sound
@@ -398,51 +354,17 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroCompl
         </>
       )}
 
-      {selectedTask && (
-        <div className="text-center p-4 mx-auto mt-6 w-4/5 rounded-md backdrop-blur-md bg-[rgba(34,44,60,0.45)] border-2 border-accent-success">
-          <h3 className="text-sm text-white/60 mb-1">Selected task</h3>
-          <p className="text-xl font-semibold mb-1">{selectedTask.text}</p>
-          {timeLeft === 0 ? (
-            <>
-              <p className="text-sm text-green-300 mt-2">Time for a {pomodoroDuration}-minute Pomodoro session!</p>
-              <div className="mt-4 flex justify-center space-x-4">
-                <button
-                  onClick={startTimer}
-                  className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-                >
-                  Start Timer
-                </button>
-                {timerStarted && (
-                  <button
-                    onClick={completeTask}
-                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-                  >
-                    ✅ Complete Task
-                  </button>
-                )}
-              </div>
-            </>
-          ) : (
-            <>
-              <p className="text-2xl font-bold text-green-300 mt-2">{formatTime(timeLeft)}</p>
-              <div className="mt-4 flex justify-center space-x-4">
-                <button
-                  onClick={isPaused ? resumeTimer : pauseTimer}
-                  className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition-colors"
-                >
-                  {isPaused ? 'Resume' : 'Pause'}
-                </button>
-                <button
-                  onClick={completeTask}
-                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-                >
-                  ✅ Complete Task
-                </button>
-              </div>
-            </>
-          )}
-        </div>
-      )}
+      <PomodoroTimer
+        selectedTask={selectedTask}
+        timeLeft={timeLeft}
+        timerStarted={timerStarted}
+        isPaused={isPaused}
+        pomodoroDuration={pomodoroDuration}
+        onStartTimer={startTimerHandler}
+        onPauseTimer={pauseTimer}
+        onResumeTimer={resumeTimer}
+        onCompleteTask={completeTask}
+      />
     </div>
     {showSettings && (
       <SettingsModal

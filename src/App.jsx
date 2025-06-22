@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import useLocalStorage from "./hooks/useLocalStorage";
 import TaskManager from "./components/TaskManager";
 import RouletteWheel from "./components/RouletteWheel";
 import AnalyticsPanel from "./components/AnalyticsPanel";
@@ -7,55 +8,24 @@ import TomatoIcon from "./components/icons/TomatoIcon";
 function App() {
   const currentDate = new Date().toISOString().split('T')[0];
 
-  const [tasks, setTasks] = useState(() => {
-    const stored = localStorage.getItem('tasks');
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        return parsed.map(t => ({ pomodoros: 0, ...t }));
-      } catch {
-        return [];
-      }
-    }
-    return [];
-  });
-
-  const [completedTasks, setCompletedTasks] = useState(() => {
-    const stored = localStorage.getItem('completedTasks');
-    if (stored) {
-      try {
-        return JSON.parse(stored);
-      } catch {
-        return [];
-      }
-    }
-    return [];
-  });
-
-  const [dailyPomodoros, setDailyPomodoros] = useState(() => {
-    const stored = localStorage.getItem('dailyPomodoros');
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        if (parsed.date === currentDate) return parsed.count;
-      } catch { /* ignore */ }
-    }
-    return 0;
-  });
+  const [tasks, setTasks] = useLocalStorage('tasks', []);
+  const [completedTasks, setCompletedTasks] = useLocalStorage('completedTasks', []);
+  const [dailyData, setDailyData] = useLocalStorage('dailyPomodoros', { date: currentDate, count: 0 });
+  const dailyPomodoros = dailyData.date === currentDate ? dailyData.count : 0;
+  const setDailyPomodoros = (updater) => {
+    setDailyData(prev => {
+      const currentCount = prev.date === currentDate ? prev.count : 0;
+      const nextCount = typeof updater === 'function' ? updater(currentCount) : updater;
+      return { date: currentDate, count: nextCount };
+    });
+  };
   const [selectedTask, setSelectedTask] = useState(null);
   const [startTaskId, setStartTaskId] = useState(null);
 
   useEffect(() => {
-    localStorage.setItem('tasks', JSON.stringify(tasks));
-  }, [tasks]);
+    setTasks(prev => prev.map(t => ({ pomodoros: t.pomodoros || 0, ...t })))
+  }, [])
 
-  useEffect(() => {
-    localStorage.setItem('completedTasks', JSON.stringify(completedTasks));
-  }, [completedTasks]);
-
-  useEffect(() => {
-    localStorage.setItem('dailyPomodoros', JSON.stringify({ date: currentDate, count: dailyPomodoros }));
-  }, [dailyPomodoros, currentDate]);
 
   const addTask = (taskText) => {
     const newTask = {
