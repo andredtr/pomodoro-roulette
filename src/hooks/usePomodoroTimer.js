@@ -4,45 +4,65 @@ export default function usePomodoroTimer(durationMinutes, onComplete) {
   const [timeLeft, setTimeLeft] = useState(0)
   const [timerStarted, setTimerStarted] = useState(false)
   const [isPaused, setIsPaused] = useState(false)
-  const timerRef = useRef(null)
+
+  const intervalRef = useRef(null)
+  const endTimeRef = useRef(null)
+
+  const clearTimer = () => {
+    clearInterval(intervalRef.current)
+    intervalRef.current = null
+  }
+
+  const updateTimeLeft = () => {
+    if (!endTimeRef.current) return
+    const remaining = Math.round((endTimeRef.current - Date.now()) / 1000)
+    if (remaining > 0) {
+      setTimeLeft(remaining)
+    } else {
+      setTimeLeft(0)
+      clearTimer()
+      if (timerStarted) {
+        setTimerStarted(false)
+        onComplete?.()
+      }
+    }
+  }
 
   const startTimer = (minutes = durationMinutes) => {
-    clearTimeout(timerRef.current)
-    setTimeLeft(minutes * 60)
+    clearTimer()
+    const durationMs = minutes * 60 * 1000
+    endTimeRef.current = Date.now() + durationMs
+    setTimeLeft(Math.round(durationMs / 1000))
     setTimerStarted(true)
     setIsPaused(false)
+    intervalRef.current = setInterval(updateTimeLeft, 1000)
   }
 
   const pauseTimer = () => {
-    clearTimeout(timerRef.current)
+    if (!timerStarted || isPaused) return
+    clearTimer()
+    updateTimeLeft()
     setIsPaused(true)
   }
 
   const resumeTimer = () => {
+    if (!timerStarted || !isPaused) return
+    endTimeRef.current = Date.now() + timeLeft * 1000
     setIsPaused(false)
+    intervalRef.current = setInterval(updateTimeLeft, 1000)
   }
 
   const reset = () => {
-    clearTimeout(timerRef.current)
+    clearTimer()
+    endTimeRef.current = null
     setTimeLeft(0)
     setTimerStarted(false)
     setIsPaused(false)
   }
 
   useEffect(() => {
-    clearTimeout(timerRef.current)
-
-    if (timeLeft > 0) {
-      if (!isPaused) {
-        timerRef.current = setTimeout(() => setTimeLeft((t) => t - 1), 1000)
-      }
-    } else if (timeLeft === 0 && timerStarted) {
-      onComplete?.()
-      setTimerStarted(false)
-    }
-
-    return () => clearTimeout(timerRef.current)
-  }, [timeLeft, isPaused, timerStarted, onComplete])
+    return () => clearTimer()
+  }, [])
 
   return {
     timeLeft,
