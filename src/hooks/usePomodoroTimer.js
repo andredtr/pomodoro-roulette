@@ -64,6 +64,23 @@ export default function usePomodoroTimer(durationMinutes, onComplete) {
     return () => clearTimer()
   }, [])
 
+  // Ensure the timer updates when the page becomes visible again
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        updateTimeLeft()
+        // If the timer should be running but no interval is active, start it
+        if (timerStarted && !isPaused && !intervalRef.current) {
+          intervalRef.current = setInterval(updateTimeLeft, 1000)
+        }
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+  }, [timerStarted, isPaused])
+
   return {
     timeLeft,
     timerStarted,
