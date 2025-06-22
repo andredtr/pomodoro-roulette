@@ -5,6 +5,7 @@ import SettingsIcon from './icons/SettingsIcon'
 import SettingsModal from './SettingsModal'
 import PomodoroTimer from './PomodoroTimer'
 import BreakTimer from './BreakTimer'
+import TimerProgressBar from './TimerProgressBar'
 import usePomodoroTimer from '../hooks/usePomodoroTimer'
 import useSettings from '../hooks/useSettings'
 import WheelCanvas from './WheelCanvas'
@@ -330,6 +331,13 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroCompl
 
   return (
     <>
+    {(timerStarted || breakTimerStarted) && (
+      <TimerProgressBar
+        timeLeft={timerStarted ? timeLeft : breakTimeLeft}
+        totalTime={(timerStarted ? pomodoroDuration : breakDuration) * 60}
+        mode={timerStarted ? 'task' : 'break'}
+      />
+    )}
     <div className="bg-bg-card rounded-md shadow-lg px-6 py-12 relative">
       <button
         aria-label="Settings"
