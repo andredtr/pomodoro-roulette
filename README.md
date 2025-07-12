@@ -14,3 +14,4 @@ https://pomodo-roulette.netlify.app/
 - Track completed tasks and how many pomodoros each took
 - Daily count of completed pomodoros
 - Configurable break timer after each pomodoro
+- Create separate task groups by adding `?key=yourname` to the URL

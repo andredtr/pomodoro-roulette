@@ -5,12 +5,23 @@ import RouletteWheel from "./components/RouletteWheel";
 import AnalyticsPanel from "./components/AnalyticsPanel";
 import TomatoIcon from "./components/icons/TomatoIcon";
 
+const urlParams = new URLSearchParams(window.location.search);
+const groupKey = urlParams.get("key") || "";
+const storagePrefix = groupKey ? `${groupKey}_` : "";
+const groupLabel = groupKey || "default";
+
 function App() {
   const currentDate = new Date().toISOString().split('T')[0];
 
-  const [tasks, setTasks] = useLocalStorage('tasks', []);
-  const [completedTasks, setCompletedTasks] = useLocalStorage('completedTasks', []);
-  const [dailyData, setDailyData] = useLocalStorage('dailyPomodoros', { date: currentDate, count: 0 });
+  const [tasks, setTasks] = useLocalStorage(`${storagePrefix}tasks`, []);
+  const [completedTasks, setCompletedTasks] = useLocalStorage(
+    `${storagePrefix}completedTasks`,
+    []
+  );
+  const [dailyData, setDailyData] = useLocalStorage(
+    `${storagePrefix}dailyPomodoros`,
+    { date: currentDate, count: 0 }
+  );
   const dailyPomodoros = dailyData.date === currentDate ? dailyData.count : 0;
   const setDailyPomodoros = (updater) => {
     setDailyData(prev => {
@@ -106,6 +117,7 @@ function App() {
             <p className="text-sm max-w-xl mx-auto text-white/60">
               Add your tasks and let the wheel decide what to work on next!
             </p>
+            <p className="text-xs text-white/40 mt-1">Group: {groupLabel}</p>
             <div className="mt-8 h-px bg-white/20"></div>
           </header>
 
