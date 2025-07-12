@@ -1,6 +1,6 @@
 # Pomodoro Roulette
 
-A simple Pomodoro timer with a roulette wheel to select tasks. Mostly created by Codex.
+A simple Pomodoro timer with a roulette wheel to select tasks. Created using Codex from OpenAI.
 
 ## Live Demo
 https://pomodo-roulette.netlify.app/
