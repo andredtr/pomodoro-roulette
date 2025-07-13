@@ -376,7 +376,9 @@ function RouletteWheel({ tasks, onTaskSelected, onTaskCompleted, onPomodoroCompl
     // Calculate which task will be selected
     const degreesPerTask = 360 / tasks.length
     const normalizedRotation = rotation % 360
-    const selectedIndex = Math.floor((360 - normalizedRotation) / degreesPerTask) % tasks.length
+    const pointerAngle = 270
+    const relativeRotation = (pointerAngle - normalizedRotation + 360) % 360
+    const selectedIndex = Math.floor(relativeRotation / degreesPerTask) % tasks.length
 
     // Update stored rotation so subsequent spins start from current position
     rotationRef.current = rotation
